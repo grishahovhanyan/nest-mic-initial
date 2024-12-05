@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package PARTICIPANTS_PACKAGE;
+
+service ParticipantsService {
+  rpc FindAllParticipants (Empty) returns (Participants);
+  rpc FindOneParticipant (FindOneParticipantDto) returns (Participant);
+  rpc CreateParticipants (CreateParticipantsDto) returns (Participants);
+}
+
+message Empty {}
+
+message Participant {
+  int32 id = 1;
+  int32 userId = 2;
+  int32 conversationId = 3;
+  bool isAdmin = 4;
+}
+
+message Participants {
+  repeated Participant results = 1;
+}
+
+// DTO
+message FindOneParticipantDto {
+  int32 participantId = 1;
+}
+
+message CreateParticipantsDto {
+  repeated CreateParticipantObject createParticipantsInput = 1;
+}
+
+message CreateParticipantObject {
+  int32 userId = 1;
+  int32 conversationId = 2;
+  bool isAdmin = 3;
+}

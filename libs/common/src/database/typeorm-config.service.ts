@@ -1,0 +1,39 @@
+import { ConfigService } from '@nestjs/config'
+import { Injectable } from '@nestjs/common'
+import { TypeOrmOptionsFactory, TypeOrmModuleOptions } from '@nestjs/typeorm'
+import { join } from 'path'
+import { MYSQL_ENTITIES } from '@app/database'
+
+@Injectable()
+export class MySqlConfigService implements TypeOrmOptionsFactory {
+  constructor(private readonly configService: ConfigService) {}
+
+  createTypeOrmOptions(): TypeOrmModuleOptions {
+    const pathToMySqlDbLib = join(process.cwd(), 'libs', 'database', 'src', 'mysql')
+
+    // TODO: fix migrations
+    // const a = {
+    //   entities: [join(pathToMySqlDbLib, 'entities', '*.entity{.ts,.js}')],
+    //   migrations: [join(pathToMySqlDbLib, 'migrations', '*{.ts,.js}')]
+    // }
+
+    const a = {
+      entities: [join(pathToMySqlDbLib, 'entities', '*.entity{.ts,.js}')]
+      // migrations: [join(pathToMySqlDbLib, 'migrations', '*{.ts,.js}')]
+    }
+
+    return {
+      type: 'mysql',
+      host: this.configService.get('MYSQL_HOST'),
+      port: +this.configService.get('MYSQL_PORT'),
+      username: this.configService.get('MYSQL_USER'),
+      password: `${this.configService.get('MYSQL_PASSWORD')}`,
+      database: this.configService.get('MYSQL_DATABASE'),
+      ...a,
+      entities: MYSQL_ENTITIES,
+      logging: this.configService.get('MYSQL_LOGGING') === 'true',
+      synchronize: this.configService.get('MYSQL_SYNCHRONIZE') === 'true',
+      dropSchema: this.configService.get('MYSQL_DROP_SCHEMA') === 'true'
+    }
+  }
+}

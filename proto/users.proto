@@ -7,8 +7,6 @@ service UsersService {
   rpc FindUsersByIds (FindUsersByIdsDto) returns (Users);
 }
 
-message Empty {}
-
 message User {
   int32 id = 1;
   string fullName = 2;
@@ -20,12 +18,10 @@ message Users {
   repeated User results = 1;
 }
 
-// DTO
-message FindUsersByIdsDto {
-  repeated int32 userIds = 1;
-}
-
 message FindOneUserDto {
   int32 userId = 1;
 }
 
+message FindUsersByIdsDto {
+  repeated int32 userIds = 1;
+}

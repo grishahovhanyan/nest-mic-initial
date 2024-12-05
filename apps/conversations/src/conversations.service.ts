@@ -2,37 +2,17 @@ import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
 import { Repository } from 'typeorm'
 import { InjectRepository } from '@nestjs/typeorm'
 import { ClientGrpc } from '@nestjs/microservices'
-import { Observable, firstValueFrom } from 'rxjs'
+import { firstValueFrom } from 'rxjs'
 
-import { Conversation, Participant } from '@app/database'
-import { PARTICIPANTS_PACKAGE, USERS_PACKAGE } from '@app/microservices'
+import { Conversation } from '@app/database'
+import { GrpcParticipantsService, GrpcUsersService, PARTICIPANTS_PACKAGE, USERS_PACKAGE } from '@app/microservices'
 import { GetConversationsDto, CreateConversationDto, UpdateConversationDto } from './dto/conversation.dto'
 import { ConversationsRepository } from './conversations.repository'
 
-// TODO: update
-import { ApiProperty } from '@nestjs/swagger'
-
-class CreateParticipantDto {
-  @ApiProperty({ example: 3 })
-  userId: number
-
-  conversationId: number
-}
-
-// TODO: move to another place
-interface UsersService {
-  findUsersByIds(data: { userIds: number[] }): Observable<any>
-  findOneUser(data: { userId: number }): Observable<any>
-}
-
-interface ParticipantsService {
-  createParticipants(data: { createParticipantsInput: CreateParticipantDto[] }): Observable<{ results: Participant[] }>
-}
-
 @Injectable()
 export class ConversationsService implements OnModuleInit {
-  private usersService: UsersService
-  private participantsService: ParticipantsService
+  private usersService: GrpcUsersService
+  private participantsService: GrpcParticipantsService
 
   constructor(
     @Inject(USERS_PACKAGE) private readonly usersPackageClient: ClientGrpc,
@@ -43,8 +23,8 @@ export class ConversationsService implements OnModuleInit {
   ) {}
 
   onModuleInit() {
-    this.usersService = this.usersPackageClient.getService<UsersService>('UsersService')
-    this.participantsService = this.participantsPackageClient.getService<ParticipantsService>('ParticipantsService')
+    this.usersService = this.usersPackageClient.getService<GrpcUsersService>('UsersService')
+    this.participantsService = this.participantsPackageClient.getService<GrpcParticipantsService>('ParticipantsService')
   }
 
   async getUsersByIds(userIds: number[]) {

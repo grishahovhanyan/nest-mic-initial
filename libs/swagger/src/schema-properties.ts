@@ -16,14 +16,6 @@ function exampleValues(propertyName: string, propertyDetail, exampleValue: strin
   return propertyDetail
 }
 
-export const getOrderingDescription = (sortFields: string[]) => `
-    Allowed fields: ${sortFields.join(', ')}
-
-    Examples: 
-      ?ordering=-id (descending) 
-      ?ordering=createdAt (ascending) 
-      ?ordering=id,-createdAt`
-
 export const integerProperty = (propertyName: string, example?: number, enumValues?: number[]) => {
   const result = {
     [propertyName]: { type: 'integer', example, enum: enumValues }

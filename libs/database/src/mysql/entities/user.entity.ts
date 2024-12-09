@@ -1,10 +1,10 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm'
-import { DB_TABLES } from '../constants'
+import { DbTables } from '../db.enum'
 
-// TODO: test, use ../../ instead
+// TODO: test, use @  instead of ../../
 import { PasswordTransformer } from '../../../../common/src/transformers/password.transformer'
 
-@Entity(DB_TABLES.users)
+@Entity(DbTables.users)
 export class User {
   @PrimaryGeneratedColumn()
   id: number

@@ -1,12 +1,4 @@
-import { SORT_DIRECTIONS } from '@app/common'
 import { FindOptionsOrder, FindOptionsWhere } from 'typeorm'
-
-export interface IDbTables {
-  users: 'users'
-  conversations: 'conversations'
-  participants: 'participants'
-  messages: 'messages'
-}
 
 export interface IOrderObject {
   [key: string]: 'ASC' | 'DESC'

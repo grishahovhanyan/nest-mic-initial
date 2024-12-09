@@ -1,10 +1,10 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, JoinColumn } from 'typeorm'
-import { DB_TABLES } from '../constants'
+import { DbTables } from '../db.enum'
 
 import { Conversation } from './conversation.entity'
 import { Participant } from './participant.entity'
 
-@Entity(DB_TABLES.messages)
+@Entity(DbTables.messages)
 export class Message {
   @PrimaryGeneratedColumn()
   id: number

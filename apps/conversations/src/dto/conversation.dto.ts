@@ -1,6 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { getOrderingDescription } from '@app/swagger'
-import { CONVERSATIONS_SORT_FIELDS } from '@app/common'
+import { getOrderingDescription, CONVERSATIONS_SORT_FIELDS } from '@app/common'
 import { IOrderObject } from '@app/database'
 
 export class GetConversationsDto {

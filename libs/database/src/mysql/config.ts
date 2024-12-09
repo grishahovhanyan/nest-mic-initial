@@ -4,7 +4,6 @@ import { DataSourceOptions } from 'typeorm'
 
 const configService = new ConfigService()
 
-// TODO: refactor for migrations
 export const MYSQL_CONFIGS: DataSourceOptions = {
   type: 'mysql',
   host: configService.get('MYSQL_HOST'),

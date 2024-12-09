@@ -4,9 +4,9 @@ import { SWAGGER_TAGS, SwaggerPrivateRoute, SwaggerParticipants } from '@app/swa
 import {
   RequestUser,
   NotFoundException,
-  PAGE_SIZE_TYPES,
+  PageSizeTypes,
   SUCCESS_RESPONSE,
-  getPageSize,
+  getPaginationAndSortOrder,
   paginatedResponse
 } from '@app/common'
 
@@ -21,8 +21,9 @@ export class ParticipantsController {
   @SwaggerParticipants.index()
   @Get()
   async index(@RequestUser('id') currentUserId: number, @Query() query: GetParticipantsDto) {
-    const page = +query.page || 1
-    const perPage = getPageSize(PAGE_SIZE_TYPES.participants, +query.perPage)
+    const { page, perPage, order } = getPaginationAndSortOrder(query, PageSizeTypes.participants)
+
+    console.log(order, '<order')
 
     const getAndCountInput = {
       page,
@@ -31,7 +32,7 @@ export class ParticipantsController {
     }
     const { items, totalCount } = await this.participantsService.getAndCount(getAndCountInput)
 
-    return paginatedResponse(totalCount, page, perPage, items)
+    return paginatedResponse(items, totalCount, page, perPage)
   }
 
   @SwaggerParticipants.create()

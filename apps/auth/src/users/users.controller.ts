@@ -1,11 +1,10 @@
 import { Get, Controller, Query, UseGuards } from '@nestjs/common'
 import {
   RequestUser,
-  PAGE_SIZE_TYPES,
-  getPageSize,
+  PageSizeTypes,
+  getPaginationAndSortOrder,
   paginatedResponse,
-  USERS_SORT_FIELDS,
-  getSortOrderFromQuery
+  USERS_SORT_FIELDS
 } from '@app/common'
 
 import { SWAGGER_TAGS, SwaggerPrivateRoute, SwaggerUsers } from '@app/swagger'
@@ -29,9 +28,7 @@ export class UsersController {
   @SwaggerUsers.index()
   @Get()
   async index(@RequestUser('id') currentUserId: number, @Query() query: GetUsersDto) {
-    const page = +query.page || 1
-    const perPage = getPageSize(PAGE_SIZE_TYPES.participants, +query.perPage)
-    const order = getSortOrderFromQuery(query.ordering?.split(',') ?? [], USERS_SORT_FIELDS)
+    const { page, perPage, order } = getPaginationAndSortOrder(query, PageSizeTypes.users, USERS_SORT_FIELDS)
 
     const getAndCountInput: GetUsersDto = {
       page,
@@ -42,6 +39,6 @@ export class UsersController {
     }
     const { items, totalCount } = await this.usersService.getAndCount(getAndCountInput)
 
-    return paginatedResponse(totalCount, page, perPage, items)
+    return paginatedResponse(items, totalCount, page, perPage)
   }
 }

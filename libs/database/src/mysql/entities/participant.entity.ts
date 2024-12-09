@@ -1,10 +1,10 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm'
-import { DB_TABLES } from '../constants'
+import { DbTables } from '../db.enum'
 
 import { Conversation } from './conversation.entity'
 import { User } from './user.entity'
 
-@Entity(DB_TABLES.participants)
+@Entity(DbTables.participants)
 export class Participant {
   @PrimaryGeneratedColumn()
   id: number

@@ -14,11 +14,10 @@ import { SWAGGER_TAGS, SwaggerPrivateRoute, SwaggerConversations } from '@app/sw
 
 import {
   RequestUser,
-  getPageSize,
-  getSortOrderFromQuery,
   paginatedResponse,
   CONVERSATIONS_SORT_FIELDS,
-  PAGE_SIZE_TYPES,
+  getPaginationAndSortOrder,
+  PageSizeTypes,
   SUCCESS_RESPONSE
 } from '@app/common'
 import { CreateConversationDto, GetConversationsDto, UpdateConversationDto } from './dto/conversation.dto'
@@ -33,9 +32,11 @@ export class ConversationsController {
   @SwaggerConversations.index()
   @Get()
   async index(@RequestUser('id') currentUserId: number, @Query() query: GetConversationsDto) {
-    const page = +query.page || 1
-    const perPage = getPageSize(PAGE_SIZE_TYPES.conversations, +query.perPage)
-    const order = getSortOrderFromQuery(query.ordering?.split(',') ?? [], CONVERSATIONS_SORT_FIELDS)
+    const { page, perPage, order } = getPaginationAndSortOrder(
+      query,
+      PageSizeTypes.conversations,
+      CONVERSATIONS_SORT_FIELDS
+    )
 
     // TODO: filter read, unread
     // TODO: filter group, p2p
@@ -48,7 +49,7 @@ export class ConversationsController {
     }
     const { items, totalCount } = await this.conversationsService.getAndCount(getAndCountInput)
 
-    return paginatedResponse(totalCount, page, perPage, items)
+    return paginatedResponse(items, totalCount, page, perPage)
   }
 
   @SwaggerConversations.create()

@@ -4,9 +4,9 @@ import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core'
 import { ClientsModule } from '@nestjs/microservices'
 import * as Joi from 'joi'
 
-import { AppConfigModule, JwtAuthGuard, MysqlModule, RequestLoggerInterceptor } from '@app/common'
+import { AppConfigModule, JwtAuthGuard, RequestLoggerInterceptor } from '@app/common'
 import { getAuthServiceOptions } from '@app/microservices'
-import { Participant } from '@app/database'
+import { MysqlModule, Participant } from '@app/database'
 
 import { ParticipantsController } from './participants.controller'
 import { ParticipantsGrpcController } from './participants.grpc.controller'

@@ -4,15 +4,14 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 import { Module } from '@nestjs/common'
 import { JwtModule } from '@nestjs/jwt'
 import * as Joi from 'joi'
-import { AppConfigModule, MysqlModule, RequestLoggerInterceptor } from '@app/common'
+import { AppConfigModule, RequestLoggerInterceptor } from '@app/common'
+import { MysqlModule, User } from '@app/database'
 
 import { JwtStrategy } from './strategies/jwt.strategy'
 import { JwtConfigService } from './jwt-config.service'
 import { AuthController } from './auth.controller'
 import { AuthService } from './auth.service'
 import { UsersModule } from './users/users.module'
-
-import { User } from '@app/database'
 
 @Module({
   imports: [

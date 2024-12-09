@@ -5,10 +5,9 @@ import {
   RequestUser,
   NotFoundException,
   MESSAGE_SORT_FIELDS,
-  getSortOrderFromQuery,
   SUCCESS_RESPONSE,
-  PAGE_SIZE_TYPES,
-  getPageSize,
+  getPaginationAndSortOrder,
+  PageSizeTypes,
   paginatedResponse
 } from '@app/common'
 import { GetMessagesDto, CreateMessageDto, UpdateMessageDto } from './dto/message.dto'
@@ -23,9 +22,7 @@ export class MessagesController {
   @SwaggerMessages.index()
   @Get()
   async index(@RequestUser('id') currentUserId: number, @Query() query: GetMessagesDto) {
-    const page = +query.page || 1
-    const perPage = getPageSize(PAGE_SIZE_TYPES.messages, +query.perPage)
-    const order = getSortOrderFromQuery(query.ordering?.split(',') ?? [], MESSAGE_SORT_FIELDS)
+    const { page, perPage, order } = getPaginationAndSortOrder(query, PageSizeTypes.messages, MESSAGE_SORT_FIELDS)
 
     const getAndCountInput = {
       page,
@@ -35,7 +32,7 @@ export class MessagesController {
     }
     const { items, totalCount } = await this.messagesService.getAndCount(getAndCountInput)
 
-    return paginatedResponse(totalCount, page, perPage, items)
+    return paginatedResponse(items, totalCount, page, perPage)
   }
 
   @SwaggerMessages.create()

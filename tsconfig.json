@@ -11,15 +11,14 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "paths": {
-      "@swagger/*": ["swagger-docs/*"],
       "@app/common": ["libs/common/src"],
       "@app/common/*": ["libs/common/src/*"],
-      "@app/swagger": ["libs/swagger/src"],
-      "@app/swagger/*": ["libs/swagger/src/*"],
       "@app/database": ["libs/database/src"],
       "@app/database/*": ["libs/database/src/*"],
       "@app/microservices": ["libs/microservices/src"],
-      "@app/microservices/*": ["libs/microservices/src/*"]
+      "@app/microservices/*": ["libs/microservices/src/*"],
+      "@app/swagger": ["libs/swagger/src"],
+      "@app/swagger/*": ["libs/swagger/src/*"]
     },
     "incremental": true,
     "skipLibCheck": true,
@@ -28,5 +27,7 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false
-  }
+  },
+  "include": ["apps/**/*.ts", "libs/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
 }

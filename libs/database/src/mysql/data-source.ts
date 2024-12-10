@@ -1,4 +1,5 @@
 import 'dotenv/config'
+import 'tsconfig-paths/register'
 import { ConfigService } from '@nestjs/config'
 import { DataSource } from 'typeorm'
 import { join } from 'path'

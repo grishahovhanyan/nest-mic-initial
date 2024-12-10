@@ -5,14 +5,21 @@ import { ClientGrpc } from '@nestjs/microservices'
 import { firstValueFrom } from 'rxjs'
 
 import { Conversation } from '@app/database'
-import { GrpcParticipantsService, GrpcUsersService, PARTICIPANTS_PACKAGE, USERS_PACKAGE } from '@app/microservices'
+import {
+  UsersGrpcServiceClient,
+  ParticipantsGrpcServiceClient,
+  USERS_PACKAGE,
+  USERS_SERVICE_NAME,
+  PARTICIPANTS_PACKAGE,
+  PARTICIPANTS_SERVICE_NAME
+} from '@app/microservices'
 import { GetConversationsDto, CreateConversationDto, UpdateConversationDto } from './dto/conversation.dto'
 import { ConversationsRepository } from './conversations.repository'
 
 @Injectable()
 export class ConversationsService implements OnModuleInit {
-  private usersService: GrpcUsersService
-  private participantsService: GrpcParticipantsService
+  private usersService: UsersGrpcServiceClient
+  private participantsService: ParticipantsGrpcServiceClient
 
   constructor(
     @Inject(USERS_PACKAGE) private readonly usersPackageClient: ClientGrpc,
@@ -23,8 +30,9 @@ export class ConversationsService implements OnModuleInit {
   ) {}
 
   onModuleInit() {
-    this.usersService = this.usersPackageClient.getService<GrpcUsersService>('UsersService')
-    this.participantsService = this.participantsPackageClient.getService<GrpcParticipantsService>('ParticipantsService')
+    this.usersService = this.usersPackageClient.getService<UsersGrpcServiceClient>(USERS_SERVICE_NAME)
+    this.participantsService =
+      this.participantsPackageClient.getService<ParticipantsGrpcServiceClient>(PARTICIPANTS_SERVICE_NAME)
   }
 
   async getUsersByIds(userIds: number[]) {

@@ -1,8 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm'
 import { DbTables } from '../db.enum'
 
-// TODO: test, use @  instead of ../../
-import { PasswordTransformer } from '../../../../common/src/transformers/password.transformer'
+import { PasswordTransformer } from '@app/common'
 
 @Entity(DbTables.users)
 export class User {

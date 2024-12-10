@@ -13,6 +13,7 @@
     "start:prod": "node dist/apps/auth/main",
     "lint": "eslint .",
     "typeorm": "npx typeorm-ts-node-commonjs -d ./libs/database/src/mysql/data-source.ts",
+    "migrations:create": "npx typeorm-ts-node-commonjs migration:create ./libs/database/src/mysql/migrations/$npm_config_name",
     "migrations:generate": "npm run typeorm -- migration:generate ./libs/database/src/mysql/migrations/$npm_config_name",
     "migrations:run": "npm run typeorm -- migration:run",
     "migrations:rollback": "npm run typeorm -- migration:revert",

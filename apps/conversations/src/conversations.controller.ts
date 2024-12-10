@@ -1,18 +1,8 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Query,
-  Body,
-  Param,
-  Put,
-  Delete,
-  ForbiddenException,
-  NotFoundException
-} from '@nestjs/common'
-import { SWAGGER_TAGS, SwaggerPrivateRoute, SwaggerConversations } from '@app/swagger'
+import { Get, Post, Query, Body, Param, Put, Delete, ForbiddenException, NotFoundException } from '@nestjs/common'
+import { SwaggerConversations } from '@app/swagger'
 
 import {
+  EnhancedController,
   RequestUser,
   paginatedResponse,
   CONVERSATIONS_SORT_FIELDS,
@@ -24,8 +14,7 @@ import { CreateConversationDto, GetConversationsDto, UpdateConversationDto } fro
 
 import { ConversationsService } from './conversations.service'
 
-@SwaggerPrivateRoute(SWAGGER_TAGS.Conversations)
-@Controller('conversations')
+@EnhancedController('conversations')
 export class ConversationsController {
   constructor(private readonly conversationsService: ConversationsService) {}
 

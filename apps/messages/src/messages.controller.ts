@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Query, Body, Param, Put, Delete } from '@nestjs/common'
-import { SWAGGER_TAGS, SwaggerPrivateRoute, SwaggerMessages } from '@app/swagger'
+import { Get, Post, Query, Body, Param, Put, Delete } from '@nestjs/common'
+import { SwaggerMessages } from '@app/swagger'
 
 import {
+  EnhancedController,
   RequestUser,
   NotFoundException,
   MESSAGE_SORT_FIELDS,
@@ -14,8 +15,7 @@ import { GetMessagesDto, CreateMessageDto, UpdateMessageDto } from './dto/messag
 
 import { MessagesService } from './messages.service'
 
-@SwaggerPrivateRoute(SWAGGER_TAGS.Messages)
-@Controller('conversations/:conversationId/messages')
+@EnhancedController('conversations/:conversationId/messages', true, 'Messages')
 export class MessagesController {
   constructor(private readonly messagesService: MessagesService) {}
 

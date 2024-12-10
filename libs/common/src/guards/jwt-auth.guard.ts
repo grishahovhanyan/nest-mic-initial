@@ -1,4 +1,4 @@
-import { ExecutionContext, Inject, Injectable } from '@nestjs/common'
+import { ExecutionContext, Inject, Injectable, Logger } from '@nestjs/common'
 import { ClientProxy } from '@nestjs/microservices'
 import { AuthGuard } from '@nestjs/passport'
 import { Reflector } from '@nestjs/core'
@@ -9,6 +9,8 @@ import { AUTH_SERVICE } from '@app/microservices'
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
+  private readonly logger = new Logger('JwtAuthGuard')
+
   constructor(@Inject(AUTH_SERVICE) private readonly authService: ClientProxy, private readonly reflector: Reflector) {
     super()
   }
@@ -34,7 +36,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
         tap((res) => (context.switchToHttp().getRequest().user = res)),
         map(() => true),
         catchError((err) => {
-          console.error(err)
+          this.logger.error(err)
           return of(false)
         })
       )

@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Query, Body, Param, Put, Delete } from '@nestjs/common'
-import { SWAGGER_TAGS, SwaggerPrivateRoute, SwaggerParticipants } from '@app/swagger'
+import { Get, Post, Query, Body, Param, Put, Delete } from '@nestjs/common'
+import { SwaggerParticipants } from '@app/swagger'
 
 import {
+  EnhancedController,
   RequestUser,
   NotFoundException,
   PageSizeTypes,
@@ -13,8 +14,7 @@ import {
 import { CreateParticipantDto, GetParticipantsDto, UpdateParticipantDto } from './dto/participant.dto'
 import { ParticipantsService } from './participants.service'
 
-@SwaggerPrivateRoute(SWAGGER_TAGS.Participants)
-@Controller('conversations/:conversationId/participants')
+@EnhancedController('conversations/:conversationId/participants', true, 'Participants')
 export class ParticipantsController {
   constructor(private readonly participantsService: ParticipantsService) {}
 

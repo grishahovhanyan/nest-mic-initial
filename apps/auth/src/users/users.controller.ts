@@ -1,5 +1,6 @@
-import { Get, Controller, Query, UseGuards } from '@nestjs/common'
+import { Get, Query, UseGuards } from '@nestjs/common'
 import {
+  EnhancedController,
   RequestUser,
   PageSizeTypes,
   getPaginationAndSortOrder,
@@ -7,14 +8,13 @@ import {
   USERS_SORT_FIELDS
 } from '@app/common'
 
-import { SWAGGER_TAGS, SwaggerPrivateRoute, SwaggerUsers } from '@app/swagger'
+import { SwaggerUsers } from '@app/swagger'
 import { JwtAuthGuard } from '../guards/jwt-auth.guard'
 import { GetUsersDto } from './dto/user.dto'
 
 import { UsersService } from './users.service'
 
-@SwaggerPrivateRoute(SWAGGER_TAGS.Users)
-@Controller('users')
+@EnhancedController('users')
 @UseGuards(JwtAuthGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}

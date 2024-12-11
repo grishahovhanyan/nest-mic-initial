@@ -5,11 +5,14 @@ export enum SortDirections {
   descending = 'DESC'
 }
 
-export const USERS_SORT_FIELDS = ['id', 'fullName']
-export const CONVERSATIONS_SORT_FIELDS = ['id', 'createdAt']
-export const MESSAGE_SORT_FIELDS = ['id', 'createdAt']
+export const DEFAULT_SORT_FIELDS = ['id']
 
-export function getSortOrderFromQuery(queryOrdering: string[], allowedSortFields: string[]): IOrderObject {
+export const USERS_SORT_FIELDS = ['id', 'fullName']
+
+export function getSortOrderFromQuery(
+  queryOrdering: string[],
+  allowedSortFields: string[] = DEFAULT_SORT_FIELDS
+): IOrderObject {
   const sortOrder = queryOrdering.reduce((orderObject, sortField) => {
     let sortDirection = SortDirections.ascending
     if (sortField.startsWith('-')) {

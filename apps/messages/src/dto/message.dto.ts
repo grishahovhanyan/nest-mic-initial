@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger'
-import { getOrderingDescription, MESSAGE_SORT_FIELDS } from '@app/common'
+import { getOrderingDescription, DEFAULT_SORT_FIELDS } from '@app/common'
 import { IOrderObject } from '@app/database'
 
 export class GetMessagesDto {
@@ -9,7 +9,7 @@ export class GetMessagesDto {
   @ApiPropertyOptional()
   perPage?: number
 
-  @ApiPropertyOptional({ description: getOrderingDescription(MESSAGE_SORT_FIELDS) })
+  @ApiPropertyOptional({ description: getOrderingDescription(DEFAULT_SORT_FIELDS) })
   ordering?: string
 
   @ApiPropertyOptional({ description: 'Text for searching' })

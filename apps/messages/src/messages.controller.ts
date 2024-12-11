@@ -5,7 +5,6 @@ import {
   EnhancedController,
   RequestUser,
   NotFoundException,
-  MESSAGE_SORT_FIELDS,
   SUCCESS_RESPONSE,
   getPaginationAndSortOrder,
   PageSizeTypes,
@@ -22,17 +21,15 @@ export class MessagesController {
   @SwaggerMessages.index()
   @Get()
   async index(@RequestUser('id') currentUserId: number, @Query() query: GetMessagesDto) {
-    const { page, perPage, order } = getPaginationAndSortOrder(query, PageSizeTypes.messages, MESSAGE_SORT_FIELDS)
+    const paginationAndSortOrder = getPaginationAndSortOrder(query, PageSizeTypes.messages)
 
     const getAndCountInput = {
-      page,
-      perPage,
-      order,
+      ...paginationAndSortOrder,
       userId: currentUserId
     }
     const { items, totalCount } = await this.messagesService.getAndCount(getAndCountInput)
 
-    return paginatedResponse(items, totalCount, page, perPage)
+    return paginatedResponse(items, totalCount, paginationAndSortOrder.page, paginationAndSortOrder.perPage)
   }
 
   @SwaggerMessages.create()

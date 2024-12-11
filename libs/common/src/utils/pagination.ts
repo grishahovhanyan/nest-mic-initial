@@ -27,7 +27,7 @@ export function getPerPage(type: string, querySize?: number) {
   const maxSize = MAX_PAGE_SIZES[`${type}MaxPageSize`]
   const defaultSize = DEFAULT_PAGE_SIZES[`${type}PageSize`]
 
-  return Number(querySize) && Number(querySize) <= maxSize ? Number(querySize) : defaultSize
+  return +querySize && +querySize <= maxSize ? +querySize : defaultSize
 }
 
 export function getPagesForResponse(totalCount: number, page: number, perPage: number) {
@@ -45,7 +45,7 @@ export function getPagesForResponse(totalCount: number, page: number, perPage: n
 export function getPaginationAndSortOrder(
   query: { page?: number; perPage?: number; ordering?: string },
   pageSizeType: string,
-  allowedSortFields: string[] = []
+  allowedSortFields?: string[]
 ): { page: number; perPage: number; order: IOrderObject } {
   const page = +query.page || 1
   const perPage = getPerPage(pageSizeType, +query.perPage)

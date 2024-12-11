@@ -1,13 +1,18 @@
 import { Injectable } from '@nestjs/common'
+import { InjectRepository } from '@nestjs/typeorm'
+import { Repository } from 'typeorm'
 
 import { Participant } from '@app/database'
-import { IFindAndCountInput } from '@app/database'
 import { GetParticipantsDto, CreateParticipantDto, UpdateParticipantDto } from './dto/participant.dto'
 import { ParticipantsRepository } from './participants.repository'
 
 @Injectable()
 export class ParticipantsService {
-  constructor(private readonly participantsRepository: ParticipantsRepository) {}
+  constructor(
+    @InjectRepository(Participant)
+    private readonly repo: Repository<Participant>,
+    private readonly participantsRepository: ParticipantsRepository
+  ) {}
 
   async create(createParticipantInput: CreateParticipantDto): Promise<Participant> {
     return await this.participantsRepository.create(createParticipantInput)
@@ -18,22 +23,55 @@ export class ParticipantsService {
   }
 
   async getAndCount(getParticipantsInput: GetParticipantsDto) {
-    const { page, perPage, order } = getParticipantsInput
+    const { page, perPage, order, searchText, userId, conversationId } = getParticipantsInput
 
-    const findAndCountInput: IFindAndCountInput<Participant> = {
-      conditions: {
-        // TODO
-      },
-      relations: [],
-      take: perPage,
-      skip: (page - 1) * perPage,
-      order
+    const qb = this.repo
+      .createQueryBuilder('participant')
+      .leftJoinAndSelect('participant.user', 'user')
+      .whereExists(
+        this.repo
+          .createQueryBuilder('participant')
+          .select('1')
+          .from('participants', 'p')
+          .where('p.conversationId = :conversationId')
+          .andWhere('p.userId = :userId')
+      )
+      .andWhere('participant.conversationId = :conversationId')
+
+    if (searchText) {
+      qb.andWhere('user.fullName LIKE :searchPattern')
     }
-    return await this.participantsRepository.findAndCount(findAndCountInput)
+
+    if (order) {
+      for (const [key, orderType] of Object.entries(order)) {
+        qb.orderBy(`participant.${key}`, orderType)
+      }
+    }
+
+    const [items, totalCount] = await qb
+      .setParameter('userId', userId)
+      .setParameter('conversationId', conversationId)
+      .setParameter('searchPattern', `%${searchText}%`)
+      .take(perPage)
+      .skip((page - 1) * perPage)
+      .getManyAndCount()
+
+    return { items, totalCount }
   }
 
   async getById(participantId: number): Promise<Participant | null> {
-    return await this.participantsRepository.findOne({ id: participantId }, { relations: [] })
+    return await this.participantsRepository.findOne({ id: participantId }, { relations: ['user', 'conversation'] })
+  }
+
+  async getByConvIdAndUserId(conversationId: number, userId: number): Promise<Participant | null> {
+    return await this.participantsRepository.findOne({ conversationId, userId })
+  }
+
+  async getByConvIdAndPartId(conversationId: number, participantId: number): Promise<Participant | null> {
+    return await this.participantsRepository.findOne(
+      { conversationId, id: participantId },
+      { relations: ['user', 'conversation'] }
+    )
   }
 
   async updateById(participantId: number, updateParticipantInput: UpdateParticipantDto): Promise<Participant | null> {

@@ -4,6 +4,8 @@ import { SwaggerParticipants } from '@app/swagger'
 import {
   EnhancedController,
   RequestUser,
+  BadRequestException,
+  ForbiddenException,
   NotFoundException,
   PageSizeTypes,
   SUCCESS_RESPONSE,
@@ -20,19 +22,28 @@ export class ParticipantsController {
 
   @SwaggerParticipants.index()
   @Get()
-  async index(@RequestUser('id') currentUserId: number, @Query() query: GetParticipantsDto) {
-    const { page, perPage, order } = getPaginationAndSortOrder(query, PageSizeTypes.participants)
+  async index(
+    @RequestUser('id') currentUserId: number,
+    @Param('conversationId') conversationId: number,
+    @Query() query: GetParticipantsDto
+  ) {
+    const participant = await this.participantsService.getByConvIdAndUserId(conversationId, currentUserId)
 
-    console.log(order, '<order')
+    if (!participant) {
+      throw new NotFoundException()
+    }
+
+    const paginationAndSortOrder = getPaginationAndSortOrder(query, PageSizeTypes.participants)
 
     const getAndCountInput = {
-      page,
-      perPage,
+      ...query,
+      ...paginationAndSortOrder,
+      conversationId,
       userId: currentUserId
     }
     const { items, totalCount } = await this.participantsService.getAndCount(getAndCountInput)
 
-    return paginatedResponse(items, totalCount, page, perPage)
+    return paginatedResponse(items, totalCount, paginationAndSortOrder.page, paginationAndSortOrder.perPage)
   }
 
   @SwaggerParticipants.create()
@@ -42,17 +53,41 @@ export class ParticipantsController {
     @Param('conversationId') conversationId: number,
     @Body() createParticipantDto: CreateParticipantDto
   ) {
-    const participant = await this.participantsService.create({ conversationId: 1, ...createParticipantDto })
+    const currentParticipant = await this.participantsService.getByConvIdAndUserId(conversationId, currentUserId)
+
+    if (!currentParticipant) {
+      throw new NotFoundException()
+    }
+
+    if (!currentParticipant.isAdmin) {
+      throw new ForbiddenException()
+    }
+
+    const existingParticipant = await this.participantsService.getByConvIdAndUserId(
+      conversationId,
+      createParticipantDto.userId
+    )
+
+    if (existingParticipant) {
+      throw new BadRequestException('User already exists in this conversation')
+    }
+
+    const participant = await this.participantsService.create({ ...createParticipantDto, conversationId })
 
     return participant
   }
 
   @SwaggerParticipants.find()
   @Get(':id')
-  async find(@Param('id') participantId: number) {
-    const participant = await this.participantsService.getById(participantId)
+  async find(
+    @RequestUser('id') currentUserId: number,
+    @Param('conversationId') conversationId: number,
+    @Param('id') participantId: number
+  ) {
+    const currentParticipant = await this.participantsService.getByConvIdAndUserId(conversationId, currentUserId)
+    const participant = await this.participantsService.getByConvIdAndPartId(conversationId, participantId)
 
-    if (!participant) {
+    if (!currentParticipant || !participant) {
       throw new NotFoundException()
     }
 
@@ -63,13 +98,19 @@ export class ParticipantsController {
   @Put(':id')
   async update(
     @RequestUser('id') currentUserId: number,
+    @Param('conversationId') conversationId: number,
     @Param('id') participantId: number,
     @Body() updateParticipantDto: UpdateParticipantDto
   ) {
-    const participant = await this.participantsService.getById(participantId)
+    const currentParticipant = await this.participantsService.getByConvIdAndUserId(conversationId, currentUserId)
+    const participant = await this.participantsService.getByConvIdAndPartId(conversationId, participantId)
 
-    if (!participant) {
+    if (!currentParticipant || !participant) {
       throw new NotFoundException()
+    }
+
+    if (!currentParticipant.isAdmin) {
+      throw new ForbiddenException()
     }
 
     const updatedParticipant = await this.participantsService.updateById(participantId, updateParticipantDto)
@@ -79,11 +120,20 @@ export class ParticipantsController {
 
   @SwaggerParticipants.delete()
   @Delete(':id')
-  async delete(@RequestUser('id') currentUserId: number, @Param('id') participantId: number) {
-    const participant = await this.participantsService.getById(participantId)
+  async delete(
+    @RequestUser('id') currentUserId: number,
+    @Param('conversationId') conversationId: number,
+    @Param('id') participantId: number
+  ) {
+    const currentParticipant = await this.participantsService.getByConvIdAndUserId(conversationId, currentUserId)
+    const participant = await this.participantsService.getByConvIdAndPartId(conversationId, participantId)
 
-    if (!participant) {
+    if (!currentParticipant || !participant) {
       throw new NotFoundException()
+    }
+
+    if (!currentParticipant.isAdmin || currentParticipant.id === participant.id) {
+      throw new ForbiddenException()
     }
 
     await this.participantsService.deleteById(participantId)

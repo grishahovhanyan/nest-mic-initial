@@ -1,11 +1,11 @@
-import { Get, Post, Query, Body, Param, Put, Delete, ForbiddenException, NotFoundException } from '@nestjs/common'
+import { Get, Post, Query, Body, Param, Put, Delete, ForbiddenException } from '@nestjs/common'
 import { SwaggerConversations } from '@app/swagger'
 
 import {
   EnhancedController,
   RequestUser,
+  NotFoundException,
   paginatedResponse,
-  CONVERSATIONS_SORT_FIELDS,
   getPaginationAndSortOrder,
   PageSizeTypes,
   SUCCESS_RESPONSE
@@ -21,24 +21,18 @@ export class ConversationsController {
   @SwaggerConversations.index()
   @Get()
   async index(@RequestUser('id') currentUserId: number, @Query() query: GetConversationsDto) {
-    const { page, perPage, order } = getPaginationAndSortOrder(
-      query,
-      PageSizeTypes.conversations,
-      CONVERSATIONS_SORT_FIELDS
-    )
+    const paginationAndSortOrder = getPaginationAndSortOrder(query, PageSizeTypes.conversations)
 
     // TODO: filter read, unread
     // TODO: filter group, p2p
     const getAndCountInput = {
-      page,
-      perPage,
-      order,
-      userId: currentUserId,
-      searchText: query.searchText
+      ...query,
+      ...paginationAndSortOrder,
+      userId: currentUserId
     }
     const { items, totalCount } = await this.conversationsService.getAndCount(getAndCountInput)
 
-    return paginatedResponse(items, totalCount, page, perPage)
+    return paginatedResponse(items, totalCount, paginationAndSortOrder.page, paginationAndSortOrder.perPage)
   }
 
   @SwaggerConversations.create()

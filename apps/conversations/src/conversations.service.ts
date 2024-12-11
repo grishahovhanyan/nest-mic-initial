@@ -68,6 +68,7 @@ export class ConversationsService implements OnModuleInit {
           .where('p.conversationId = conversation.id')
           .andWhere('p.userId = :userId')
       )
+      .leftJoinAndSelect('participant.user', 'user')
 
     if (searchText) {
       qb.andWhere('conversation.name LIKE :searchPattern')
@@ -90,7 +91,10 @@ export class ConversationsService implements OnModuleInit {
   }
 
   async getById(conversationId: number): Promise<Conversation | null> {
-    return await this.conversationsRepository.findOne({ id: conversationId }, { relations: ['participants'] })
+    return await this.conversationsRepository.findOne(
+      { id: conversationId },
+      { relations: ['participants', 'participants.user'] }
+    )
   }
 
   async getByConvIdAndUserId(conversationId: number, userId: number): Promise<Conversation | null> {

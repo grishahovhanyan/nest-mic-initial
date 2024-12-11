@@ -28,17 +28,15 @@ export class UsersController {
   @SwaggerUsers.index()
   @Get()
   async index(@RequestUser('id') currentUserId: number, @Query() query: GetUsersDto) {
-    const { page, perPage, order } = getPaginationAndSortOrder(query, PageSizeTypes.users, USERS_SORT_FIELDS)
+    const paginationAndSortOrder = getPaginationAndSortOrder(query, PageSizeTypes.users, USERS_SORT_FIELDS)
 
     const getAndCountInput: GetUsersDto = {
-      page,
-      perPage,
-      order,
-      searchText: query.searchText,
+      ...query,
+      ...paginationAndSortOrder,
       userIdsToExclude: [currentUserId]
     }
     const { items, totalCount } = await this.usersService.getAndCount(getAndCountInput)
 
-    return paginatedResponse(items, totalCount, page, perPage)
+    return paginatedResponse(items, totalCount, paginationAndSortOrder.page, paginationAndSortOrder.perPage)
   }
 }

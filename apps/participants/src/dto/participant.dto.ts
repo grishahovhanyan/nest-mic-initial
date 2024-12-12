@@ -27,7 +27,7 @@ export class CreateParticipantDto {
   userId: number
 
   @ApiPropertyOptional({ example: false })
-  isAdmin: boolean
+  isAdmin?: boolean
 
   conversationId: number
 }

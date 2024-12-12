@@ -11,7 +11,7 @@ interface FindOneParticipantDto {
   participantId: number
 }
 
-interface CreateParticipantDto {
+export interface CreateParticipantDto {
   userId: number
   conversationId: number
 }
@@ -31,7 +31,7 @@ export function ParticipantsGrpcServiceControllerMethods() {
     const grpcMethods: string[] = ['findAllParticipants', 'findOneParticipant', 'createParticipants']
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method)
-      GrpcMethod('PARTICIPANTS_SERVICE_NAME', method)(constructor.prototype[method], method, descriptor)
+      GrpcMethod(PARTICIPANTS_SERVICE_NAME, method)(constructor.prototype[method], method, descriptor)
     }
   }
 }

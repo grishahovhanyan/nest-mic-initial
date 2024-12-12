@@ -20,11 +20,17 @@ export class MessagesController {
 
   @SwaggerMessages.index()
   @Get()
-  async index(@RequestUser('id') currentUserId: number, @Query() query: GetMessagesDto) {
+  async index(
+    @RequestUser('id') currentUserId: number,
+    @Param('conversationId') conversationId: number,
+    @Query() query: GetMessagesDto
+  ) {
     const paginationAndSortOrder = getPaginationAndSortOrder(query, PageSizeTypes.messages)
 
     const getAndCountInput = {
+      ...query,
       ...paginationAndSortOrder,
+      conversationId,
       userId: currentUserId
     }
     const { items, totalCount } = await this.messagesService.getAndCount(getAndCountInput)

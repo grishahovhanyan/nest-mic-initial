@@ -97,6 +97,7 @@ export class ConversationsService implements OnModuleInit {
     )
   }
 
+  // TODO: add include relations param
   async getByConvIdAndUserId(conversationId: number, userId: number): Promise<Conversation | null> {
     return await this.repo
       .createQueryBuilder('conversation')

@@ -3,11 +3,11 @@ import { Observable } from 'rxjs'
 import { GrpcMethod } from '@nestjs/microservices'
 import { User } from '@app/database'
 
-interface FindOneUserDto {
+export interface FindOneUserDto {
   userId: number
 }
 
-interface FindUsersByIdsDto {
+export interface FindUsersByIdsDto {
   userIds: number[]
 }
 

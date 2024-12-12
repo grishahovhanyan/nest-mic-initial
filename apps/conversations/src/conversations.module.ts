@@ -9,12 +9,14 @@ import { getAuthServiceOptions, getParticipantsPackageOptions, getUsersPackageOp
 import { MysqlModule, Conversation } from '@app/database'
 
 import { ConversationsController } from './conversations.controller'
+import { ConversationsGrpcController } from './conversations.grpc.controller'
 import { ConversationsService } from './conversations.service'
 import { ConversationsRepository } from './conversations.repository'
 
 @Module({
   imports: [
     AppConfigModule({
+      // TODO: fix this for all microservices
       CONVERSATIONS_PORT: Joi.number().required(),
       AUTH_TCP_HOST: Joi.string().required(),
       AUTH_TCP_PORT: Joi.number().required()
@@ -23,7 +25,7 @@ import { ConversationsRepository } from './conversations.repository'
     TypeOrmModule.forFeature([Conversation]),
     ClientsModule.registerAsync([getAuthServiceOptions(), getParticipantsPackageOptions(), getUsersPackageOptions()])
   ],
-  controllers: [ConversationsController],
+  controllers: [ConversationsController, ConversationsGrpcController],
   providers: [
     {
       provide: APP_GUARD,

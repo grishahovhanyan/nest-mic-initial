@@ -16,6 +16,8 @@ export class GetMessagesDto {
   searchText?: string
 
   order?: IOrderObject
+  userId: number
+  conversationId: number
 }
 
 export class CreateMessageDto {

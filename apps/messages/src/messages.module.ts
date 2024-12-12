@@ -5,7 +5,7 @@ import { ClientsModule } from '@nestjs/microservices'
 import * as Joi from 'joi'
 
 import { AppConfigModule, JwtAuthGuard, RequestLoggerInterceptor } from '@app/common'
-import { getAuthServiceOptions } from '@app/microservices'
+import { getAuthServiceOptions, getConversationsPackageOptions } from '@app/microservices'
 import { MysqlModule, Message } from '@app/database'
 
 import { MessagesController } from './messages.controller'
@@ -21,7 +21,7 @@ import { MessagesRepository } from './messages.repository'
     }),
     MysqlModule,
     TypeOrmModule.forFeature([Message]),
-    ClientsModule.registerAsync([getAuthServiceOptions()])
+    ClientsModule.registerAsync([getAuthServiceOptions(), getConversationsPackageOptions()])
   ],
   controllers: [MessagesController],
   providers: [

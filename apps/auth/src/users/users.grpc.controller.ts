@@ -1,5 +1,5 @@
 import { Controller } from '@nestjs/common'
-import { UsersGrpcServiceControllerMethods } from '@app/microservices'
+import { FindOneUserDto, FindUsersByIdsDto, UsersGrpcServiceControllerMethods } from '@app/microservices'
 import { UsersService } from './users.service'
 
 /*
@@ -16,11 +16,11 @@ The `UsersGrpcServiceControllerMethods` decorator automatically applies the `Grp
 export class UsersGrpcController {
   constructor(private readonly usersService: UsersService) {}
 
-  async findOneUser(findOneUserDto: { userId: number }) {
+  async findOneUser(findOneUserDto: FindOneUserDto) {
     return await this.usersService.getById(findOneUserDto.userId)
   }
 
-  async findUsersByIds(findUsersByIdsDto: { userIds: number[] }) {
+  async findUsersByIds(findUsersByIdsDto: FindUsersByIdsDto) {
     const users = await this.usersService.getByIds(findUsersByIdsDto.userIds)
     return { results: users }
   }

@@ -1,5 +1,9 @@
 import { Controller } from '@nestjs/common'
-import { CreateParticipantDto, ParticipantsGrpcServiceControllerMethods } from '@app/microservices'
+import {
+  ParticipantsGrpcServiceControllerMethods,
+  FindOneParticipantDto,
+  CreateParticipantDto
+} from '@app/microservices'
 import { ParticipantsService } from './participants.service'
 
 /*
@@ -12,13 +16,9 @@ The `ParticipantsGrpcServiceControllerMethods` decorator automatically applies t
 export class ParticipantsGrpcController {
   constructor(private readonly participantsService: ParticipantsService) {}
 
-  // TODO: remove if not used
-  async findAllParticipants(data) {
-    console.log(data, '<data findAllParticipants')
-  }
-
-  async findOneParticipant(data) {
-    console.log(data, '<data findOneParticipant')
+  async findOneParticipant(findOneParticipantDto: FindOneParticipantDto) {
+    const { userId, conversationId } = findOneParticipantDto
+    return (await this.participantsService.getByConvIdAndUserId(conversationId, userId)) ?? {}
   }
 
   async createParticipants(createParticipantsDto: { createParticipantsInput: CreateParticipantDto[] }) {

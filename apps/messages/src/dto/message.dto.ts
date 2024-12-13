@@ -1,4 +1,4 @@
-import { ApiPropertyOptional } from '@nestjs/swagger'
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { getOrderingDescription, DEFAULT_SORT_FIELDS } from '@app/common'
 import { IOrderObject } from '@app/database'
 
@@ -16,13 +16,12 @@ export class GetMessagesDto {
   searchText?: string
 
   order?: IOrderObject
-  userId: number
   conversationId: number
 }
 
 export class CreateMessageDto {
-  @ApiPropertyOptional({ example: 'Message body' })
-  body?: string
+  @ApiProperty({ example: 'Message body' })
+  body: string
 
   participantId: number
   conversationId: number

@@ -1,26 +1,37 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
 import { ClientGrpc } from '@nestjs/microservices'
+import { FindOptionsWhere, Like } from 'typeorm'
 import { firstValueFrom } from 'rxjs'
 
 import { NotFoundException } from '@app/common'
-
-import { IFindAndCountInput, Message } from '@app/database'
-import { ConversationsGrpcServiceClient, CONVERSATIONS_PACKAGE, CONVERSATIONS_SERVICE_NAME } from '@app/microservices'
+import { IFindAndCountInput, Message, Participant } from '@app/database'
+import {
+  ConversationsGrpcServiceClient,
+  CONVERSATIONS_PACKAGE,
+  CONVERSATIONS_SERVICE_NAME,
+  ParticipantsGrpcServiceClient,
+  PARTICIPANTS_PACKAGE,
+  PARTICIPANTS_SERVICE_NAME
+} from '@app/microservices'
 import { GetMessagesDto, CreateMessageDto, UpdateMessageDto } from './dto/message.dto'
 import { MessagesRepository } from './messages.repository'
 
 @Injectable()
 export class MessagesService implements OnModuleInit {
   private conversationsService: ConversationsGrpcServiceClient
+  private participantsService: ParticipantsGrpcServiceClient
 
   constructor(
     @Inject(CONVERSATIONS_PACKAGE) private readonly conversationsPackageClint: ClientGrpc,
+    @Inject(PARTICIPANTS_PACKAGE) private readonly participantsPackageClint: ClientGrpc,
     private readonly messagesRepository: MessagesRepository
   ) {}
 
   onModuleInit() {
     this.conversationsService =
       this.conversationsPackageClint.getService<ConversationsGrpcServiceClient>(CONVERSATIONS_SERVICE_NAME)
+    this.participantsService =
+      this.participantsPackageClint.getService<ParticipantsGrpcServiceClient>(PARTICIPANTS_SERVICE_NAME)
   }
 
   async getConversation(conversationId: number, userId: number) {
@@ -37,19 +48,31 @@ export class MessagesService implements OnModuleInit {
     return true
   }
 
+  async getParticipant(conversationId: number, userId: number): Promise<Participant | null> {
+    const participant = await firstValueFrom(this.participantsService.findOneParticipant({ conversationId, userId }))
+
+    if (!participant?.id) {
+      return null
+    }
+
+    return participant
+  }
+
   async create(createMessageInput: CreateMessageDto): Promise<Message> {
     return await this.messagesRepository.create({ ...createMessageInput })
   }
 
   async getAndCount(getMessagesInput: GetMessagesDto) {
-    const { page, perPage, order, searchText, userId, conversationId } = getMessagesInput
+    const { page, perPage, order, searchText, conversationId } = getMessagesInput
 
-    await this.checkConversationAccess(conversationId, userId) // TODO: create guard for this
+    const conditions: FindOptionsWhere<Message> = { conversationId }
 
-    console.log(searchText, '<add search by text')
+    if (searchText) {
+      conditions.body = Like(`%${searchText.trim()}%`)
+    }
 
     const findAndCountInput: IFindAndCountInput<Message> = {
-      conditions: { conversationId },
+      conditions,
       relations: ['participant', 'participant.user'],
       take: perPage,
       skip: (page - 1) * perPage,
@@ -59,7 +82,7 @@ export class MessagesService implements OnModuleInit {
   }
 
   async getById(messageId: number): Promise<Message | null> {
-    return await this.messagesRepository.findOne({ id: messageId }, { relations: [] })
+    return await this.messagesRepository.findOne({ id: messageId }, { relations: ['participant', 'participant.user'] })
   }
 
   async updateById(messageId: number, updateMessageInput: UpdateMessageDto): Promise<Message | null> {
@@ -67,7 +90,7 @@ export class MessagesService implements OnModuleInit {
     return await this.getById(messageId)
   }
 
-  async deleteById(messageId: number) {
+  async deleteById(messageId: number): Promise<void> {
     await this.messagesRepository.delete({ id: messageId })
   }
 }

@@ -17,6 +17,8 @@ import { ParticipantsRepository } from './participants.repository'
   imports: [
     AppConfigModule({
       PARTICIPANTS_PORT: Joi.number().required(),
+      PARTICIPANTS_GRPC_HOST: Joi.string().required(),
+      PARTICIPANTS_GRPC_PORT: Joi.number().required(),
       AUTH_TCP_HOST: Joi.string().required(),
       AUTH_TCP_PORT: Joi.number().required()
     }),

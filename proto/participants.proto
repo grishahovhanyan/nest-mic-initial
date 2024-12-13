@@ -3,7 +3,6 @@ syntax = "proto3";
 package PARTICIPANTS_PACKAGE;
 
 service ParticipantsService {
-  rpc FindAllParticipants (FindAllParticipantsDto) returns (Participants);
   rpc FindOneParticipant (FindOneParticipantDto) returns (Participant);
   rpc CreateParticipants (CreateParticipantsDto) returns (Participants);
 }
@@ -21,12 +20,9 @@ message Participants {
   repeated Participant results = 1;
 }
 
-message FindAllParticipantsDto {
-  int32 conversationId = 1;
-}
-
 message FindOneParticipantDto {
-  int32 participantId = 1;
+  int32 userId = 1;
+  int32 conversationId = 2;
 }
 
 message CreateParticipantsDto {

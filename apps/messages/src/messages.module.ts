@@ -5,7 +5,11 @@ import { ClientsModule } from '@nestjs/microservices'
 import * as Joi from 'joi'
 
 import { AppConfigModule, JwtAuthGuard, RequestLoggerInterceptor } from '@app/common'
-import { getAuthServiceOptions, getConversationsPackageOptions } from '@app/microservices'
+import {
+  getAuthServiceOptions,
+  getConversationsPackageOptions,
+  getParticipantsPackageOptions
+} from '@app/microservices'
 import { MysqlModule, Message } from '@app/database'
 
 import { MessagesController } from './messages.controller'
@@ -17,11 +21,19 @@ import { MessagesRepository } from './messages.repository'
     AppConfigModule({
       MESSAGES_PORT: Joi.number().required(),
       AUTH_TCP_HOST: Joi.string().required(),
-      AUTH_TCP_PORT: Joi.number().required()
+      AUTH_TCP_PORT: Joi.number().required(),
+      CONVERSATIONS_GRPC_HOST: Joi.string().required(),
+      CONVERSATIONS_GRPC_PORT: Joi.number().required(),
+      PARTICIPANTS_GRPC_HOST: Joi.string().required(),
+      PARTICIPANTS_GRPC_PORT: Joi.number().required()
     }),
     MysqlModule,
     TypeOrmModule.forFeature([Message]),
-    ClientsModule.registerAsync([getAuthServiceOptions(), getConversationsPackageOptions()])
+    ClientsModule.registerAsync([
+      getAuthServiceOptions(),
+      getConversationsPackageOptions(),
+      getParticipantsPackageOptions()
+    ])
   ],
   controllers: [MessagesController],
   providers: [

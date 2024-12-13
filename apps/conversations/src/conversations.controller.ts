@@ -23,7 +23,6 @@ export class ConversationsController {
   async index(@RequestUser('id') currentUserId: number, @Query() query: GetConversationsDto) {
     const paginationAndSortOrder = getPaginationAndSortOrder(query, PageSizeTypes.conversations)
 
-    // TODO: filter read, unread
     // TODO: filter group, p2p
     const getAndCountInput = {
       ...query,

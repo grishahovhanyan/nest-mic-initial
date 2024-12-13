@@ -3,12 +3,9 @@ import { Observable } from 'rxjs'
 import { GrpcMethod } from '@nestjs/microservices'
 import { Participant } from '@app/database'
 
-interface FindAllParticipantsDto {
+export interface FindOneParticipantDto {
+  userId: number
   conversationId: number
-}
-
-interface FindOneParticipantDto {
-  participantId: number
 }
 
 export interface CreateParticipantDto {
@@ -17,7 +14,6 @@ export interface CreateParticipantDto {
 }
 
 export interface ParticipantsGrpcServiceClient {
-  findAllParticipants(request: FindAllParticipantsDto): Observable<{ results: Participant[] }>
   findOneParticipant(request: FindOneParticipantDto): Observable<Participant>
   createParticipants(request: {
     createParticipantsInput: CreateParticipantDto[]
@@ -28,7 +24,7 @@ export const PARTICIPANTS_SERVICE_NAME = 'ParticipantsService'
 
 export function ParticipantsGrpcServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ['findAllParticipants', 'findOneParticipant', 'createParticipants']
+    const grpcMethods: string[] = ['findOneParticipant', 'createParticipants']
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method)
       GrpcMethod(PARTICIPANTS_SERVICE_NAME, method)(constructor.prototype[method], method, descriptor)

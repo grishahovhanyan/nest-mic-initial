@@ -16,10 +16,15 @@ import { ConversationsRepository } from './conversations.repository'
 @Module({
   imports: [
     AppConfigModule({
-      // TODO: fix this for all microservices
       CONVERSATIONS_PORT: Joi.number().required(),
+      CONVERSATIONS_GRPC_HOST: Joi.string().required(),
+      CONVERSATIONS_GRPC_PORT: Joi.number().required(),
       AUTH_TCP_HOST: Joi.string().required(),
-      AUTH_TCP_PORT: Joi.number().required()
+      AUTH_TCP_PORT: Joi.number().required(),
+      USERS_GRPC_HOST: Joi.string().required(),
+      USERS_GRPC_PORT: Joi.number().required(),
+      PARTICIPANTS_GRPC_HOST: Joi.string().required(),
+      PARTICIPANTS_GRPC_PORT: Joi.number().required()
     }),
     MysqlModule,
     TypeOrmModule.forFeature([Conversation]),

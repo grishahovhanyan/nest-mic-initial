@@ -97,12 +97,10 @@ export class ConversationsService implements OnModuleInit {
     )
   }
 
-  // TODO: add include relations param
   async getByConvIdAndUserId(conversationId: number, userId: number): Promise<Conversation | null> {
     return await this.repo
       .createQueryBuilder('conversation')
       .leftJoinAndSelect('conversation.participants', 'participant')
-      .leftJoinAndSelect('conversation.messages', 'message') // TODO:  add limit for messages
       .whereExists(
         this.repo
           .createQueryBuilder('participant')

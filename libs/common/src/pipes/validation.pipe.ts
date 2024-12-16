@@ -5,7 +5,6 @@ import { VALIDATION_MESSAGES } from '@app/common'
 
 const constraintsToMessages = {
   isDefined: VALIDATION_MESSAGES.required,
-  match: VALIDATION_MESSAGES.passwordMismatch,
   isBoolean: VALIDATION_MESSAGES.invalidBoolean,
   isInt: VALIDATION_MESSAGES.invalidInteger,
   isNumber: VALIDATION_MESSAGES.invalidNumber,

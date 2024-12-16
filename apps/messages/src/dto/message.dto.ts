@@ -1,18 +1,19 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { getOrderingDescription, DEFAULT_SORT_FIELDS } from '@app/common'
 import { IOrderObject } from '@app/database'
+import { getOrderingDescription, DEFAULT_SORT_FIELDS } from '@app/common'
+import { NumberFieldOptional, StringField, StringFieldOptional } from '@app/common/validators'
 
+// TODO: move all regarding pagination  to separate dto in common
 export class GetMessagesDto {
-  @ApiPropertyOptional()
+  @NumberFieldOptional({ positive: true })
   page?: number
 
-  @ApiPropertyOptional()
+  @NumberFieldOptional({ positive: true })
   perPage?: number
 
-  @ApiPropertyOptional({ description: getOrderingDescription(DEFAULT_SORT_FIELDS) })
+  @StringFieldOptional({ description: getOrderingDescription(DEFAULT_SORT_FIELDS) })
   ordering?: string
 
-  @ApiPropertyOptional({ description: 'Text for searching' })
+  @StringFieldOptional({ description: 'Text for searching' })
   searchText?: string
 
   order?: IOrderObject
@@ -20,16 +21,16 @@ export class GetMessagesDto {
 }
 
 export class CreateMessageDto {
-  @ApiProperty({ example: 'Message body' })
+  @StringField({ example: 'Message body' })
   body: string
 
   participantId: number
   conversationId: number
 }
 
-// TODO: extends from CreateMessageDto
+// TODO: extends from CreateMessageDto see transport project
 export class UpdateMessageDto {
-  @ApiPropertyOptional({ example: 'Message body' })
+  @StringFieldOptional({ example: 'Message body' })
   body?: string
 
   participantId: number

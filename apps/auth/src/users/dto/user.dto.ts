@@ -1,18 +1,18 @@
-import { ApiPropertyOptional } from '@nestjs/swagger'
-import { getOrderingDescription, USERS_SORT_FIELDS } from '@app/common'
 import { IOrderObject } from '@app/database'
+import { getOrderingDescription, USERS_SORT_FIELDS } from '@app/common'
+import { NumberFieldOptional, StringFieldOptional } from '@app/common/validators'
 
 export class GetUsersDto {
-  @ApiPropertyOptional()
+  @NumberFieldOptional({ positive: true })
   page?: number
 
-  @ApiPropertyOptional()
+  @NumberFieldOptional({ positive: true })
   perPage?: number
 
-  @ApiPropertyOptional({ description: getOrderingDescription(USERS_SORT_FIELDS) })
+  @StringFieldOptional({ description: getOrderingDescription(USERS_SORT_FIELDS) })
   ordering?: string
 
-  @ApiPropertyOptional({ description: 'Text for searching' })
+  @StringFieldOptional({ description: 'Text for searching' })
   searchText?: string
 
   order?: IOrderObject

@@ -53,6 +53,7 @@ export class ParticipantsController {
     @Param('conversationId') conversationId: number,
     @Body() createParticipantDto: CreateParticipantDto
   ) {
+    // TODO: get user by id and throw not fount if no user
     const currentParticipant = await this.participantsService.getByConvIdAndUserId(conversationId, currentUserId)
 
     if (!currentParticipant) {

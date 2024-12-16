@@ -2,7 +2,8 @@ import { Injectable } from '@nestjs/common'
 import { In, Like, Not } from 'typeorm'
 
 import { IFindAndCountInput, User } from '@app/database'
-import { GetUsersDto, CreateUserDto } from './dto/user.dto'
+import { GetUsersDto } from './dto/user.dto'
+import { SignupDto } from '../dto/auth.dto'
 
 import { UsersRepository } from './users.repository'
 
@@ -10,8 +11,8 @@ import { UsersRepository } from './users.repository'
 export class UsersService {
   constructor(private readonly usersRepository: UsersRepository) {}
 
-  async create(createUserInput: CreateUserDto): Promise<User> {
-    return await this.usersRepository.create(createUserInput)
+  async create(createUserDto: SignupDto): Promise<User> {
+    return await this.usersRepository.create(createUserDto)
   }
 
   async getById(userId: number): Promise<User | null> {
@@ -26,8 +27,8 @@ export class UsersService {
     return await this.usersRepository.find({ id: In(userIds) })
   }
 
-  async getAndCount(getUsersInput: GetUsersDto) {
-    const { page, perPage, order, searchText, userIdsToExclude, userIdsToInclude } = getUsersInput
+  async getAndCount(getUsersDto: GetUsersDto) {
+    const { page, perPage, order, searchText, userIdsToExclude, userIdsToInclude } = getUsersDto
 
     const findAndCountInput: IFindAndCountInput<User> = {
       conditions: {

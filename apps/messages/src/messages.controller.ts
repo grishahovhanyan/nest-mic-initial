@@ -60,7 +60,7 @@ export class MessagesController {
 
   @SwaggerMessages.find()
   @Get(':id')
-  async find(@Param('id') messageId: number) {
+  async find(@Param('conversationId') conversationId: number, @Param('id') messageId: number) {
     const message = await this.messagesService.getById(messageId)
 
     if (!message) {
@@ -74,6 +74,7 @@ export class MessagesController {
   @Put(':id')
   async update(
     @RequestUser('id') currentUserId: number,
+    @Param('conversationId') conversationId: number,
     @Param('id') messageId: number,
     @Body() updateMessageDto: UpdateMessageDto
   ) {
@@ -87,6 +88,10 @@ export class MessagesController {
       throw new ForbiddenException()
     }
 
+    if (!Object.keys(updateMessageDto)?.length) {
+      return message
+    }
+
     const updatedMessage = await this.messagesService.updateById(messageId, updateMessageDto)
 
     return updatedMessage
@@ -94,7 +99,11 @@ export class MessagesController {
 
   @SwaggerMessages.delete()
   @Delete(':id')
-  async delete(@RequestUser('id') currentUserId: number, @Param('id') messageId: number) {
+  async delete(
+    @RequestUser('id') currentUserId: number,
+    @Param('conversationId') conversationId: number,
+    @Param('id') messageId: number
+  ) {
     const message = await this.messagesService.getById(messageId)
 
     if (!message) {

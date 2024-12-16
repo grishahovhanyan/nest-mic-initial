@@ -1,20 +1,9 @@
+import { PickType } from '@nestjs/swagger'
 import { IOrderObject } from '@app/database'
-import { getOrderingDescription, DEFAULT_SORT_FIELDS } from '@app/common'
-import {
-  BooleanField,
-  BooleanFieldOptional,
-  NumberField,
-  NumberFieldOptional,
-  StringFieldOptional
-} from '@app/common/validators'
+import { PaginationDto, getOrderingDescription, DEFAULT_SORT_FIELDS } from '@app/common'
+import { BooleanFieldOptional, NumberField, StringFieldOptional } from '@app/common/validators'
 
-export class GetParticipantsDto {
-  @NumberFieldOptional({ positive: true })
-  page?: number
-
-  @NumberFieldOptional({ positive: true })
-  perPage?: number
-
+export class GetParticipantsDto extends PaginationDto {
   @StringFieldOptional({ description: getOrderingDescription(DEFAULT_SORT_FIELDS) })
   ordering?: string
 
@@ -36,7 +25,4 @@ export class CreateParticipantDto {
   conversationId: number
 }
 
-export class UpdateParticipantDto {
-  @BooleanField()
-  isAdmin: boolean
-}
+export class UpdateParticipantDto extends PickType(CreateParticipantDto, ['isAdmin', 'conversationId']) {}

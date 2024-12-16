@@ -114,6 +114,10 @@ export class ParticipantsController {
       throw new ForbiddenException()
     }
 
+    if (!Object.keys(updateParticipantDto).length) {
+      return participant
+    }
+
     const updatedParticipant = await this.participantsService.updateById(participantId, updateParticipantDto)
 
     return updatedParticipant

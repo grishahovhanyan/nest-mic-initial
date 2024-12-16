@@ -1,15 +1,9 @@
+import { PickType } from '@nestjs/swagger'
 import { IOrderObject } from '@app/database'
-import { getOrderingDescription, DEFAULT_SORT_FIELDS } from '@app/common'
-import { NumberFieldOptional, StringField, StringFieldOptional } from '@app/common/validators'
+import { PaginationDto, getOrderingDescription, DEFAULT_SORT_FIELDS } from '@app/common'
+import { StringField, StringFieldOptional } from '@app/common/validators'
 
-// TODO: move all regarding pagination  to separate dto in common
-export class GetMessagesDto {
-  @NumberFieldOptional({ positive: true })
-  page?: number
-
-  @NumberFieldOptional({ positive: true })
-  perPage?: number
-
+export class GetMessagesDto extends PaginationDto {
   @StringFieldOptional({ description: getOrderingDescription(DEFAULT_SORT_FIELDS) })
   ordering?: string
 
@@ -28,11 +22,7 @@ export class CreateMessageDto {
   conversationId: number
 }
 
-// TODO: extends from CreateMessageDto see transport project
-export class UpdateMessageDto {
+export class UpdateMessageDto extends PickType(CreateMessageDto, ['participantId', 'conversationId']) {
   @StringFieldOptional({ example: 'Message body' })
   body?: string
-
-  participantId: number
-  conversationId: number
 }

@@ -1,14 +1,8 @@
 import { IOrderObject } from '@app/database'
-import { getOrderingDescription, DEFAULT_SORT_FIELDS } from '@app/common'
-import { NumberFieldOptional, NumberIdsField, StringField, StringFieldOptional } from '@app/common/validators'
+import { PaginationDto, getOrderingDescription, DEFAULT_SORT_FIELDS } from '@app/common'
+import { NumberIdsField, StringField, StringFieldOptional } from '@app/common/validators'
 
-export class GetConversationsDto {
-  @NumberFieldOptional({ positive: true })
-  page?: number
-
-  @NumberFieldOptional({ positive: true })
-  perPage?: number
-
+export class GetConversationsDto extends PaginationDto {
   @StringFieldOptional({ description: getOrderingDescription(DEFAULT_SORT_FIELDS) })
   ordering?: string
 

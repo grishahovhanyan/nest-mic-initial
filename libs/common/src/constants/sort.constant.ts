@@ -29,7 +29,7 @@ export function getSortOrderFromQuery(
   return sortOrder
 }
 
-export const getOrderingDescription = (sortFields: string[]) => `
+export const getOrderingDescription = (sortFields: string[] = DEFAULT_SORT_FIELDS) => `
     Allowed fields: ${sortFields.join(', ')}
 
     Examples: 

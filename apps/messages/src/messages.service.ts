@@ -58,12 +58,12 @@ export class MessagesService implements OnModuleInit {
     return participant
   }
 
-  async create(createMessageInput: CreateMessageDto): Promise<Message> {
-    return await this.messagesRepository.create({ ...createMessageInput })
+  async create(createMessageDto: CreateMessageDto): Promise<Message> {
+    return await this.messagesRepository.create({ ...createMessageDto })
   }
 
-  async getAndCount(getMessagesInput: GetMessagesDto) {
-    const { page, perPage, order, searchText, conversationId } = getMessagesInput
+  async getAndCount(getMessagesDto: GetMessagesDto) {
+    const { page, perPage, order, searchText, conversationId } = getMessagesDto
 
     const conditions: FindOptionsWhere<Message> = { conversationId }
 
@@ -85,8 +85,8 @@ export class MessagesService implements OnModuleInit {
     return await this.messagesRepository.findOne({ id: messageId }, { relations: ['participant', 'participant.user'] })
   }
 
-  async updateById(messageId: number, updateMessageInput: UpdateMessageDto): Promise<Message | null> {
-    await this.messagesRepository.update({ id: messageId }, updateMessageInput)
+  async updateById(messageId: number, updateMessageDto: UpdateMessageDto): Promise<Message | null> {
+    await this.messagesRepository.update({ id: messageId }, updateMessageDto)
     return await this.getById(messageId)
   }
 

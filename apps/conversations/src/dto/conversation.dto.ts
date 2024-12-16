@@ -1,13 +1,17 @@
+import { IntersectionType } from '@nestjs/swagger'
 import { IOrderObject } from '@app/database'
-import { PaginationDto, getOrderingDescription, DEFAULT_SORT_FIELDS } from '@app/common'
-import { NumberIdsField, StringField, StringFieldOptional } from '@app/common/validators'
+import { PaginationDto, SearchDto, getOrderingDescription } from '@app/common'
+import { BooleanFieldOptional, NumberIdsField, StringField, StringFieldOptional } from '@app/common/validators'
 
-export class GetConversationsDto extends PaginationDto {
-  @StringFieldOptional({ description: getOrderingDescription(DEFAULT_SORT_FIELDS) })
+export class GetConversationsDto extends IntersectionType(PaginationDto, SearchDto) {
+  @StringFieldOptional({ description: getOrderingDescription() })
   ordering?: string
 
-  @StringFieldOptional({ description: 'Text for searching' })
-  searchText?: string
+  @BooleanFieldOptional()
+  groupOnly?: boolean
+
+  @BooleanFieldOptional()
+  p2pOnly?: boolean
 
   order?: IOrderObject
   userId: number

@@ -26,12 +26,11 @@ export class MessagesController {
   async index(@Param('conversationId') conversationId: number, @Query() query: GetMessagesDto) {
     const paginationAndSortOrder = getPaginationAndSortOrder(query, PageSizeTypes.messages)
 
-    const getAndCountInput = {
+    const { items, totalCount } = await this.messagesService.getAndCount({
       ...query,
       ...paginationAndSortOrder,
       conversationId
-    }
-    const { items, totalCount } = await this.messagesService.getAndCount(getAndCountInput)
+    })
 
     return paginatedResponse(items, totalCount, paginationAndSortOrder.page, paginationAndSortOrder.perPage)
   }

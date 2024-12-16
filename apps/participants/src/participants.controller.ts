@@ -35,13 +35,12 @@ export class ParticipantsController {
 
     const paginationAndSortOrder = getPaginationAndSortOrder(query, PageSizeTypes.participants)
 
-    const getAndCountInput = {
+    const { items, totalCount } = await this.participantsService.getAndCount({
       ...query,
       ...paginationAndSortOrder,
       conversationId,
       userId: currentUserId
-    }
-    const { items, totalCount } = await this.participantsService.getAndCount(getAndCountInput)
+    })
 
     return paginatedResponse(items, totalCount, paginationAndSortOrder.page, paginationAndSortOrder.perPage)
   }
@@ -53,7 +52,7 @@ export class ParticipantsController {
     @Param('conversationId') conversationId: number,
     @Body() createParticipantDto: CreateParticipantDto
   ) {
-    // TODO: get user by id and throw not fount if no user
+    // TODO: get user by id and throw not fount if no user , connect usersPackage lik ein conversation service
     const currentParticipant = await this.participantsService.getByConvIdAndUserId(conversationId, currentUserId)
 
     if (!currentParticipant) {

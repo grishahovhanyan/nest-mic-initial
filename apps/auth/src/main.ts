@@ -49,8 +49,6 @@ async function bootstrap() {
 }
 bootstrap()
 
-// TODO: getUsersInput => getUsersDto for all project
-
 process.on('uncaughtException', (err) => {
   logger.error(err, 'Uncaught exception detected')
   throw err

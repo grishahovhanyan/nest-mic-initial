@@ -26,73 +26,18 @@ import {
   type ValidationOptions
 } from 'class-validator'
 
-import { ToArray, ToBoolean } from './transform.decorator' // TODO: check this file
+import { ToBoolean } from './transform.decorator' // TODO: check this file
 import { PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH, VALIDATION_MESSAGES } from '../constants'
 import { Match } from '../decorators/match.decorator'
-
-export const HelperService = {
-  // TODO: check this
-  getVariableName<TResult>(getVar: () => TResult): string | undefined {
-    const m = /\(\)=>(.*)/.exec(getVar.toString().replaceAll(/(\r\n|\n|\r|\s)/gm, ''))
-
-    if (!m) {
-      throw new Error("The function does not contain a statement matching 'return variableName;'")
-    }
-
-    const fullMemberName = m[1]
-
-    const memberParts = fullMemberName?.split('.')
-
-    return memberParts?.at(-1)
-  }
-}
-
-export function ApiEnumProperty<TEnum>(
-  getEnum: () => TEnum,
-  options: Omit<ApiPropertyOptions, 'type'> & { each?: boolean } = {}
-): PropertyDecorator {
-  const enumValue = getEnum() as Record<string, any>
-
-  return ApiProperty({
-    type: 'enum',
-    enum: enumValue,
-    enumName: HelperService.getVariableName(getEnum),
-    ...options
-  })
-}
-
-// TODO: move this to other file
-export interface IFieldOptions {
-  each?: boolean
-  swagger?: boolean
-  nullable?: boolean
-}
-
-export interface INumberFieldOptions extends IFieldOptions {
-  min?: number
-  max?: number
-  int?: boolean
-  positive?: boolean
-}
-
-export interface INumberIdsFieldOptions extends INumberFieldOptions {
-  optional?: boolean
-}
-
-export interface IStringFieldOptions extends IFieldOptions {
-  minLength?: number
-  maxLength?: number
-  example?: string
-  matchKey?: string
-  matchMessage?: string
-}
-
-export interface IPasswordFieldOptions extends IStringFieldOptions {
-  passwordConfirmField?: boolean
-}
-
-export type IBooleanFieldOptions = IFieldOptions
-export type IEnumFieldOptions = IFieldOptions
+import {
+  IFieldOptions,
+  INumberFieldOptions,
+  INumberIdsFieldOptions,
+  IStringFieldOptions,
+  IPasswordFieldOptions,
+  IBooleanFieldOptions,
+  IEnumFieldOptions
+} from './validators.interface'
 
 export function IsUndefinable(options?: ValidationOptions): PropertyDecorator {
   return ValidateIf((_obj, value) => value !== undefined, options)
@@ -103,6 +48,7 @@ export function IsNullable(options?: ValidationOptions): PropertyDecorator {
 }
 
 export function NumberField(options: Omit<ApiPropertyOptions, 'type'> & INumberFieldOptions = {}): PropertyDecorator {
+  const { each } = options
   const decorators = [Type(() => Number)]
 
   if (options.swagger !== false) {
@@ -110,33 +56,27 @@ export function NumberField(options: Omit<ApiPropertyOptions, 'type'> & INumberF
   }
 
   if (options.nullable) {
-    decorators.push(IsNullable({ each: options.each }))
+    decorators.push(IsNullable({ each }))
   } else {
-    decorators.push(NotEquals(null, { each: options.each }))
-  }
-
-  if (options.each) {
-    decorators.push(ToArray())
+    decorators.push(NotEquals(null, { each }))
   }
 
   if (options.int) {
-    decorators.push(IsInt({ each: options.each }))
+    decorators.push(IsInt({ each }))
   } else {
-    decorators.push(IsNumber({}, { each: options.each }))
+    decorators.push(IsNumber({}, { each }))
   }
 
   if (options.positive) {
-    decorators.push(IsPositive({ each: options.each }))
+    decorators.push(IsPositive({ each }))
   }
 
   if (typeof options.min === 'number') {
-    decorators.push(
-      Min(options.min, { each: options.each, message: VALIDATION_MESSAGES.mustBeGreaterThan(options.min) })
-    )
+    decorators.push(Min(options.min, { each, message: VALIDATION_MESSAGES.mustBeGreaterThan(options.min) }))
   }
 
   if (typeof options.max === 'number') {
-    decorators.push(Max(options.max, { each: options.each, message: VALIDATION_MESSAGES.mustBeLessThan(options.max) }))
+    decorators.push(Max(options.max, { each, message: VALIDATION_MESSAGES.mustBeLessThan(options.max) }))
   }
 
   return applyDecorators(...decorators)
@@ -160,9 +100,7 @@ export function NumberIdsField(
   )
 }
 
-export function StringField(
-  options: Omit<ApiPropertyOptions, 'type' | 'example'> & IStringFieldOptions = {}
-): PropertyDecorator {
+export function StringField(options: Omit<ApiPropertyOptions, 'type'> & IStringFieldOptions = {}): PropertyDecorator {
   const decorators = [IsString({ each: options.each })]
 
   if (options.swagger !== false) {
@@ -244,38 +182,6 @@ export function BooleanFieldOptional(
   return applyDecorators(IsUndefinable(), BooleanField({ required: false, nullable: true, ...options }))
 }
 
-// Todo: check this fields
-export function EnumField<TEnum extends object>(
-  getEnum: () => TEnum,
-  options: Omit<ApiPropertyOptions, 'type' | 'enum' | 'enumName' | 'isArray'> & IEnumFieldOptions = {}
-): PropertyDecorator {
-  const enumValue = getEnum()
-  const decorators = [IsEnum(enumValue, { each: options.each })]
-
-  if (options.nullable) {
-    decorators.push(IsNullable())
-  } else {
-    decorators.push(NotEquals(null))
-  }
-
-  if (options.each) {
-    decorators.push(ToArray())
-  }
-
-  if (options.swagger !== false) {
-    decorators.push(ApiEnumProperty(getEnum, { ...options, isArray: options.each }))
-  }
-
-  return applyDecorators(...decorators)
-}
-
-export function EnumFieldOptional<TEnum extends object>(
-  getEnum: () => TEnum,
-  options: Omit<ApiPropertyOptions, 'type' | 'required' | 'enum' | 'enumName'> & IEnumFieldOptions = {}
-): PropertyDecorator {
-  return applyDecorators(IsUndefinable(), EnumField(getEnum, { required: false, ...options }))
-}
-
 export function EmailField(options: Omit<ApiPropertyOptions, 'type'> & IStringFieldOptions = {}): PropertyDecorator {
   const decorators = [StringField({ ...options }), IsEmail()]
 
@@ -295,7 +201,48 @@ export function EmailField(options: Omit<ApiPropertyOptions, 'type'> & IStringFi
 export function EmailFieldOptional(
   options: Omit<ApiPropertyOptions, 'type'> & IStringFieldOptions = {}
 ): PropertyDecorator {
-  return applyDecorators(IsUndefinable(), EmailField({ required: false, ...options }))
+  return applyDecorators(IsUndefinable(), EmailField({ required: false, nullable: true, ...options }))
+}
+
+// TODO: check this fields
+export function ApiEnumProperty<TEnum>(
+  getEnum: () => TEnum,
+  options: Omit<ApiPropertyOptions, 'type'> & { each?: boolean } = {}
+): PropertyDecorator {
+  const enumValue = getEnum() as Record<string, any>
+
+  return ApiProperty({
+    type: 'enum',
+    enum: enumValue,
+    ...options
+  })
+}
+
+export function EnumField<TEnum extends object>(
+  getEnum: () => TEnum,
+  options: Omit<ApiPropertyOptions, 'type' | 'enum' | 'enumName' | 'isArray'> & IEnumFieldOptions = {}
+): PropertyDecorator {
+  const enumValue = getEnum()
+  const decorators = [IsEnum(enumValue, { each: options.each })]
+
+  if (options.nullable) {
+    decorators.push(IsNullable())
+  } else {
+    decorators.push(NotEquals(null))
+  }
+
+  if (options.swagger !== false) {
+    decorators.push(ApiEnumProperty(getEnum, { ...options, isArray: options.each }))
+  }
+
+  return applyDecorators(...decorators)
+}
+
+export function EnumFieldOptional<TEnum extends object>(
+  getEnum: () => TEnum,
+  options: Omit<ApiPropertyOptions, 'type' | 'required' | 'enum' | 'enumName'> & IEnumFieldOptions = {}
+): PropertyDecorator {
+  return applyDecorators(IsUndefinable(), EnumField(getEnum, { required: false, ...options }))
 }
 
 export function DateField(options: Omit<ApiPropertyOptions, 'type'> & IFieldOptions = {}): PropertyDecorator {

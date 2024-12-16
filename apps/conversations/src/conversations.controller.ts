@@ -23,13 +23,11 @@ export class ConversationsController {
   async index(@RequestUser('id') currentUserId: number, @Query() query: GetConversationsDto) {
     const paginationAndSortOrder = getPaginationAndSortOrder(query, PageSizeTypes.conversations)
 
-    // TODO: filter group, p2p
-    const getAndCountInput = {
+    const { items, totalCount } = await this.conversationsService.getAndCount({
       ...query,
       ...paginationAndSortOrder,
       userId: currentUserId
-    }
-    const { items, totalCount } = await this.conversationsService.getAndCount(getAndCountInput)
+    })
 
     return paginatedResponse(items, totalCount, paginationAndSortOrder.page, paginationAndSortOrder.perPage)
   }

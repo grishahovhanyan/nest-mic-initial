@@ -14,16 +14,16 @@ export class ParticipantsService {
     private readonly participantsRepository: ParticipantsRepository
   ) {}
 
-  async create(createParticipantInput: CreateParticipantDto): Promise<Participant> {
-    return await this.participantsRepository.create(createParticipantInput)
+  async create(createParticipantDto: CreateParticipantDto): Promise<Participant> {
+    return await this.participantsRepository.create(createParticipantDto)
   }
 
-  async bulkCreate(createParticipantsInput: CreateParticipantDto[]): Promise<Participant[]> {
-    return await this.participantsRepository.bulkCreate(createParticipantsInput)
+  async bulkCreate(createParticipantsDto: CreateParticipantDto[]): Promise<Participant[]> {
+    return await this.participantsRepository.bulkCreate(createParticipantsDto)
   }
 
-  async getAndCount(getParticipantsInput: GetParticipantsDto) {
-    const { page, perPage, order, searchText, userId, conversationId } = getParticipantsInput
+  async getAndCount(getParticipantsDto: GetParticipantsDto) {
+    const { page, perPage, order, searchText, userId, conversationId } = getParticipantsDto
 
     const qb = this.repo
       .createQueryBuilder('participant')
@@ -74,8 +74,8 @@ export class ParticipantsService {
     )
   }
 
-  async updateById(participantId: number, updateParticipantInput: UpdateParticipantDto): Promise<Participant | null> {
-    await this.participantsRepository.update({ id: participantId }, updateParticipantInput)
+  async updateById(participantId: number, updateParticipantDto: UpdateParticipantDto): Promise<Participant | null> {
+    await this.participantsRepository.update({ id: participantId }, updateParticipantDto)
     return await this.getById(participantId)
   }
 

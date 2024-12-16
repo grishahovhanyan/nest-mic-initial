@@ -39,8 +39,8 @@ export class ConversationsService implements OnModuleInit {
     return await firstValueFrom(this.usersService.findUsersByIds({ userIds }))
   }
 
-  async create(createConversationInput: CreateConversationDto) {
-    const { creatorId, name, userIds } = createConversationInput
+  async create(createConversationDto: CreateConversationDto) {
+    const { creatorId, name, userIds } = createConversationDto
 
     const conversation = await this.conversationsRepository.create({ creatorId, name })
 
@@ -54,8 +54,8 @@ export class ConversationsService implements OnModuleInit {
     return conversation
   }
 
-  async getAndCount(getConversationsInput: GetConversationsDto) {
-    const { page, perPage, order, userId, searchText } = getConversationsInput
+  async getAndCount(getConversationsDto: GetConversationsDto) {
+    const { page, perPage, order, userId, searchText, groupOnly, p2pOnly } = getConversationsDto
 
     const qb = this.repo
       .createQueryBuilder('conversation')
@@ -72,6 +72,18 @@ export class ConversationsService implements OnModuleInit {
 
     if (searchText) {
       qb.andWhere('conversation.name LIKE :searchPattern')
+    }
+
+    // TODO: set isGroup true or false after update
+    if (groupOnly) {
+      qb.andWhere('conversation.isGroup = 1')
+    }
+
+    console.log(getConversationsDto)
+
+    // TODO: check this p2p is 'true' must be true
+    if (p2pOnly) {
+      qb.andWhere('conversation.isGroup = 0')
     }
 
     if (order) {
@@ -115,11 +127,8 @@ export class ConversationsService implements OnModuleInit {
       .getOne()
   }
 
-  async updateById(
-    conversationId: number,
-    updateConversationInput: UpdateConversationDto
-  ): Promise<Conversation | null> {
-    await this.conversationsRepository.update({ id: conversationId }, updateConversationInput)
+  async updateById(conversationId: number, updateConversationDto: UpdateConversationDto): Promise<Conversation | null> {
+    await this.conversationsRepository.update({ id: conversationId }, updateConversationDto)
     return await this.getById(conversationId)
   }
 

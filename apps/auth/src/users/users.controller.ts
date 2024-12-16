@@ -30,12 +30,11 @@ export class UsersController {
   async index(@RequestUser('id') currentUserId: number, @Query() query: GetUsersDto) {
     const paginationAndSortOrder = getPaginationAndSortOrder(query, PageSizeTypes.users, USERS_SORT_FIELDS)
 
-    const getAndCountInput: GetUsersDto = {
+    const { items, totalCount } = await this.usersService.getAndCount({
       ...query,
       ...paginationAndSortOrder,
       userIdsToExclude: [currentUserId]
-    }
-    const { items, totalCount } = await this.usersService.getAndCount(getAndCountInput)
+    })
 
     return paginatedResponse(items, totalCount, paginationAndSortOrder.page, paginationAndSortOrder.perPage)
   }

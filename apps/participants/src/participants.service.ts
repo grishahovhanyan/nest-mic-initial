@@ -1,18 +1,32 @@
-import { Injectable } from '@nestjs/common'
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
+import { ClientGrpc } from '@nestjs/microservices'
 
 import { Participant } from '@app/database'
+import { UsersGrpcServiceClient, USERS_PACKAGE, USERS_SERVICE_NAME } from '@app/microservices'
 import { GetParticipantsDto, CreateParticipantDto, UpdateParticipantDto } from './dto/participant.dto'
 import { ParticipantsRepository } from './participants.repository'
+import { firstValueFrom } from 'rxjs'
 
 @Injectable()
-export class ParticipantsService {
+export class ParticipantsService implements OnModuleInit {
+  private usersService: UsersGrpcServiceClient
+
   constructor(
+    @Inject(USERS_PACKAGE) private readonly usersPackageClient: ClientGrpc,
     @InjectRepository(Participant)
     private readonly repo: Repository<Participant>,
     private readonly participantsRepository: ParticipantsRepository
   ) {}
+
+  onModuleInit() {
+    this.usersService = this.usersPackageClient.getService<UsersGrpcServiceClient>(USERS_SERVICE_NAME)
+  }
+
+  async getUserById(userId: number) {
+    return await firstValueFrom(this.usersService.findOneUser({ userId }))
+  }
 
   async create(createParticipantDto: CreateParticipantDto): Promise<Participant> {
     return await this.participantsRepository.create(createParticipantDto)

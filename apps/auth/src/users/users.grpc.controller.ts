@@ -13,7 +13,7 @@ export class UsersGrpcController {
   constructor(private readonly usersService: UsersService) {}
 
   async findOneUser(findOneUserDto: FindOneUserDto) {
-    return await this.usersService.getById(findOneUserDto.userId)
+    return (await this.usersService.getById(findOneUserDto.userId)) ?? {}
   }
 
   async findUsersByIds(findUsersByIdsDto: FindUsersByIdsDto) {

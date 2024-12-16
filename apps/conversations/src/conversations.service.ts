@@ -74,16 +74,12 @@ export class ConversationsService implements OnModuleInit {
       qb.andWhere('conversation.name LIKE :searchPattern')
     }
 
-    // TODO: set isGroup true or false after update
     if (groupOnly) {
-      qb.andWhere('conversation.isGroup = 1')
+      qb.andWhere('conversation.isGroup = TRUE')
     }
 
-    console.log(getConversationsDto)
-
-    // TODO: check this p2p is 'true' must be true
     if (p2pOnly) {
-      qb.andWhere('conversation.isGroup = 0')
+      qb.andWhere('conversation.isGroup = FALSE')
     }
 
     if (order) {

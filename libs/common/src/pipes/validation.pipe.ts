@@ -34,7 +34,7 @@ export class ValidationPipe implements PipeTransform<any> {
       throw new BadRequestException(responseError)
     }
 
-    return value
+    return objectToValidate
   }
 
   private toValidate(metatype): boolean {

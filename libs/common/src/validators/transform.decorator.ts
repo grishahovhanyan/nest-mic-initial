@@ -27,8 +27,6 @@ export function Trim(): PropertyDecorator {
 export function ToBoolean(): PropertyDecorator {
   return Transform(
     (params) => {
-      console.log(params.value, '<params')
-
       switch (params.value) {
         case 'true':
           return true
@@ -37,8 +35,8 @@ export function ToBoolean(): PropertyDecorator {
         default:
           return params.value
       }
-    }
-    // { toClassOnly: true }
+    },
+    { toClassOnly: true, toPlainOnly: true }
   )
 }
 

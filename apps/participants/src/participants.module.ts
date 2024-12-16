@@ -5,7 +5,7 @@ import { ClientsModule } from '@nestjs/microservices'
 import * as Joi from 'joi'
 
 import { AppConfigModule, JwtAuthGuard, RequestLoggerInterceptor } from '@app/common'
-import { getAuthServiceOptions } from '@app/microservices'
+import { getAuthServiceOptions, getUsersPackageOptions } from '@app/microservices'
 import { MysqlModule, Participant } from '@app/database'
 
 import { ParticipantsController } from './participants.controller'
@@ -24,7 +24,7 @@ import { ParticipantsRepository } from './participants.repository'
     }),
     MysqlModule,
     TypeOrmModule.forFeature([Participant]),
-    ClientsModule.registerAsync([getAuthServiceOptions()])
+    ClientsModule.registerAsync([getAuthServiceOptions(), getUsersPackageOptions()])
   ],
   controllers: [ParticipantsController, ParticipantsGrpcController],
   providers: [

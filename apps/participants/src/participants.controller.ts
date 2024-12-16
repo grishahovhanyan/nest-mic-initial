@@ -52,7 +52,6 @@ export class ParticipantsController {
     @Param('conversationId') conversationId: number,
     @Body() createParticipantDto: CreateParticipantDto
   ) {
-    // TODO: get user by id and throw not fount if no user , connect usersPackage lik ein conversation service
     const currentParticipant = await this.participantsService.getByConvIdAndUserId(conversationId, currentUserId)
 
     if (!currentParticipant) {
@@ -70,6 +69,11 @@ export class ParticipantsController {
 
     if (existingParticipant) {
       throw new BadRequestException('User already exists in this conversation')
+    }
+
+    const user = await this.participantsService.getUserById(createParticipantDto.userId)
+    if (!user?.id) {
+      throw new NotFoundException()
     }
 
     const participant = await this.participantsService.create({ ...createParticipantDto, conversationId })

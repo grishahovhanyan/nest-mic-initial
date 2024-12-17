@@ -24,7 +24,6 @@ export class MessagesController {
   async index(@Param('conversationId') conversationId: number, @Query() query: GetMessagesDto) {
     const { items, totalCount } = await this.messagesService.getAndCount({
       ...query,
-      order: typeof query.order === 'string' ? JSON.parse(query.order) : {},
       conversationId
     })
 

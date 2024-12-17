@@ -4,7 +4,6 @@ import { Repository } from 'typeorm'
 import { ExtractJwt, Strategy } from 'passport-jwt'
 import { PassportStrategy } from '@nestjs/passport'
 import { Injectable } from '@nestjs/common'
-// import { JWT_CONSTANTS } from '@app/common'
 
 import { User } from '@app/database'
 

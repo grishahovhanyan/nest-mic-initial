@@ -15,7 +15,6 @@ export class ConversationsController {
   async index(@RequestUser('id') currentUserId: number, @Query() query: GetConversationsDto) {
     const { items, totalCount } = await this.conversationsService.getAndCount({
       ...query,
-      order: typeof query.order === 'string' ? JSON.parse(query.order) : {},
       userId: currentUserId
     })
 

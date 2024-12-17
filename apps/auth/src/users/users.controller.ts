@@ -21,9 +21,10 @@ export class UsersController {
   @SwaggerUsers.index()
   @Get()
   async index(@RequestUser('id') currentUserId: number, @Query() query: GetUsersDto) {
+    console.log(query, '<query')
+
     const { items, totalCount } = await this.usersService.getAndCount({
       ...query,
-      order: typeof query.order === 'string' ? JSON.parse(query.order) : {},
       userIdsToExclude: [currentUserId]
     })
 

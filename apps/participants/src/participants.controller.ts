@@ -33,7 +33,6 @@ export class ParticipantsController {
 
     const { items, totalCount } = await this.participantsService.getAndCount({
       ...query,
-      order: typeof query.order === 'string' ? JSON.parse(query.order) : {}, // TODO: fix
       conversationId,
       userId: currentUserId
     })

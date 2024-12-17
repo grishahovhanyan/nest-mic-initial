@@ -1,6 +1,7 @@
 import { FindOptionsOrder, FindOptionsWhere } from 'typeorm'
+import { SortDirections } from '@app/common'
 
-export type OrderObject = Record<string, 'ASC' | 'DESC'>
+export type OrderObject = Record<string, SortDirections>
 
 export interface GetAndCountInput {
   page: number

@@ -1,20 +1,16 @@
 import { Transform } from 'class-transformer'
-import { StringFieldOptional } from '../validators'
-import { getOrderDescription, getSortOrderFromQuery } from '../constants'
-import { OrderObject } from '@app/database'
+import { ApiPropertyOptional } from '@nestjs/swagger'
+import { IsOptional } from 'class-validator'
+
+import { getOrderDescription, getSortOrderFromQuery, SortDirections } from '../constants'
 
 export function OrderDto(sortFields?: string[]) {
   class DynamicOrderDto {
-    @Transform(({ value }) => JSON.stringify(getSortOrderFromQuery(value.split(',') ?? [])), { toClassOnly: true })
-    @StringFieldOptional({ description: getOrderDescription(sortFields) })
-    order?: string | OrderObject
+    @Transform(({ value }) => getSortOrderFromQuery(value?.split(',') ?? [], sortFields), { toClassOnly: true })
+    @IsOptional()
+    @ApiPropertyOptional({ type: String, description: getOrderDescription(sortFields) })
+    order?: Record<string, SortDirections>
   }
-
-  /*
-  ####### NOTE #######
-  'order' will be a string in the controller.
-  If we want to use the actual 'order' object, we need to use JSON.parse to parse the string into an object.
-  */
 
   return DynamicOrderDto
 }

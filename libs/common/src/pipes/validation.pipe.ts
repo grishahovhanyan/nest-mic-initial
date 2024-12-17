@@ -37,8 +37,6 @@ export class ValidationPipe extends NestValidationPipe {
     // Use class-transformer to instantiate the DTO
     const objectToValidate = plainToInstance(metadata.metatype, value)
 
-    objectToValidate.order = value.order
-
     // Use class-validator to validate the object
     const errors = await validate(objectToValidate)
 

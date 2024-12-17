@@ -10,7 +10,7 @@ export enum PageTypes {
 }
 
 export const DEFAULT_PAGE_SIZE = 50
-const MAX_PAGE_SIZE = 200
+export const MAX_PAGE_SIZE = 200
 
 export const DEFAULT_PAGE_SIZES = {
   [PageTypes.users]: envService.getEnvNumber('USERS_PAGE_SIZE', DEFAULT_PAGE_SIZE),

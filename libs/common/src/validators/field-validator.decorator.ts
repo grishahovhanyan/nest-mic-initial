@@ -100,7 +100,7 @@ export function StringField(options: Omit<ApiPropertyOptions, 'type'> & IStringF
   const decorators = [IsString({ each: options.each })]
 
   if (options.swagger !== false) {
-    decorators.push(ApiProperty({ type: String, isArray: options.each, example: options.example, ...options }))
+    decorators.push(ApiProperty({ type: String, isArray: options.each, ...options }))
   }
 
   if (options.nullable) {

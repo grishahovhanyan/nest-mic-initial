@@ -1,4 +1,10 @@
-import { PipeTransform, Injectable, ArgumentMetadata, BadRequestException } from '@nestjs/common'
+import {
+  Injectable,
+  ValidationPipe as NestValidationPipe,
+  ValidationPipeOptions,
+  ArgumentMetadata,
+  BadRequestException
+} from '@nestjs/common'
 import { validate } from 'class-validator'
 import { plainToInstance } from 'class-transformer'
 import { VALIDATION_MESSAGES } from '@app/common'
@@ -13,32 +19,41 @@ const constraintsToMessages = {
 }
 
 @Injectable()
-export class ValidationPipe implements PipeTransform<any> {
-  async transform(value: any, { metatype }: ArgumentMetadata) {
-    if (!metatype || !this.toValidate(metatype)) {
+export class ValidationPipe extends NestValidationPipe {
+  constructor(options?: ValidationPipeOptions) {
+    super({
+      transform: true, // Ensure incoming requests are transformed
+      whitelist: true, // Strip out non-whitelisted properties
+      transformOptions: { enableImplicitConversion: true },
+      ...options
+    })
+  }
+
+  async transform(value: any, metadata: ArgumentMetadata) {
+    if (!metadata.metatype || !this.toValidate(metadata)) {
       return value
     }
 
-    const objectToValidate = plainToInstance(metatype, value)
+    // Use class-transformer to instantiate the DTO
+    const objectToValidate = plainToInstance(metadata.metatype, value)
+
+    objectToValidate.order = value.order
+
+    // Use class-validator to validate the object
     const errors = await validate(objectToValidate)
 
     if (errors.length > 0) {
-      const responseError = errors.reduce(
-        (obj, error) => ({
-          ...obj,
-          [error.property]: Object.entries(error.constraints).map(([key, value]) => constraintsToMessages[key] || value)
-        }),
-        {}
-      )
+      const formattedErrors = errors.reduce((obj, error) => {
+        obj[error.property] = Object.entries(error.constraints || {}).map(
+          ([key, value]) => constraintsToMessages[key] || value
+        )
+        return obj
+      }, {})
 
-      throw new BadRequestException(responseError)
+      throw new BadRequestException(formattedErrors)
     }
 
-    return objectToValidate
-  }
-
-  private toValidate(metatype): boolean {
-    const types = [String, Boolean, Number, Array, Object]
-    return !types.includes(metatype)
+    // Call the parent's transform method
+    return super.transform(value, metadata)
   }
 }

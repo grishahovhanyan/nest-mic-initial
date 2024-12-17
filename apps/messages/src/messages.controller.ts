@@ -7,8 +7,6 @@ import {
   ForbiddenException,
   NotFoundException,
   SUCCESS_RESPONSE,
-  getPaginationAndSortOrder,
-  PageSizeTypes,
   paginatedResponse
 } from '@app/common'
 import { ConversationAccessGuard } from './guards/conversation-access.guard'
@@ -24,15 +22,13 @@ export class MessagesController {
   @SwaggerMessages.index()
   @Get()
   async index(@Param('conversationId') conversationId: number, @Query() query: GetMessagesDto) {
-    const paginationAndSortOrder = getPaginationAndSortOrder(query, PageSizeTypes.messages)
-
     const { items, totalCount } = await this.messagesService.getAndCount({
       ...query,
-      ...paginationAndSortOrder,
+      order: typeof query.order === 'string' ? JSON.parse(query.order) : {},
       conversationId
     })
 
-    return paginatedResponse(items, totalCount, paginationAndSortOrder.page, paginationAndSortOrder.perPage)
+    return paginatedResponse(items, totalCount, query.page, query.perPage)
   }
 
   @SwaggerMessages.create()

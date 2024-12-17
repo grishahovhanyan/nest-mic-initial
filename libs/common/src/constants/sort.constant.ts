@@ -1,4 +1,4 @@
-import { IOrderObject } from '@app/database'
+import { OrderObject } from '@app/database'
 
 export enum SortDirections {
   ascending = 'ASC',
@@ -10,10 +10,10 @@ export const DEFAULT_SORT_FIELDS = ['id']
 export const USERS_SORT_FIELDS = ['id', 'fullName']
 
 export function getSortOrderFromQuery(
-  queryOrdering: string[],
+  queryOrder: string[],
   allowedSortFields: string[] = DEFAULT_SORT_FIELDS
-): IOrderObject {
-  const sortOrder = queryOrdering.reduce((orderObject, sortField) => {
+): OrderObject {
+  const sortOrder = queryOrder.reduce((orderObject, sortField) => {
     let sortDirection = SortDirections.ascending
     if (sortField.startsWith('-')) {
       sortDirection = SortDirections.descending
@@ -29,10 +29,10 @@ export function getSortOrderFromQuery(
   return sortOrder
 }
 
-export const getOrderingDescription = (sortFields: string[] = DEFAULT_SORT_FIELDS) => `
+export const getOrderDescription = (sortFields: string[] = DEFAULT_SORT_FIELDS) => `
     Allowed fields: ${sortFields.join(', ')}
 
     Examples: 
-      ?ordering=-id (descending) 
-      ?ordering=createdAt (ascending) 
-      ?ordering=id,-createdAt`
+      ?order=-id (descending) 
+      ?order=createdAt (ascending) 
+      ?order=id,-createdAt`

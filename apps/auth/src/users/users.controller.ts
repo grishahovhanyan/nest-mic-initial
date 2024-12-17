@@ -1,12 +1,5 @@
 import { Get, Query, UseGuards } from '@nestjs/common'
-import {
-  EnhancedController,
-  RequestUser,
-  PageSizeTypes,
-  getPaginationAndSortOrder,
-  paginatedResponse,
-  USERS_SORT_FIELDS
-} from '@app/common'
+import { EnhancedController, RequestUser, paginatedResponse } from '@app/common'
 
 import { SwaggerUsers } from '@app/swagger'
 import { JwtAuthGuard } from '../guards/jwt-auth.guard'
@@ -28,14 +21,12 @@ export class UsersController {
   @SwaggerUsers.index()
   @Get()
   async index(@RequestUser('id') currentUserId: number, @Query() query: GetUsersDto) {
-    const paginationAndSortOrder = getPaginationAndSortOrder(query, PageSizeTypes.users, USERS_SORT_FIELDS)
-
     const { items, totalCount } = await this.usersService.getAndCount({
       ...query,
-      ...paginationAndSortOrder,
+      order: typeof query.order === 'string' ? JSON.parse(query.order) : {},
       userIdsToExclude: [currentUserId]
     })
 
-    return paginatedResponse(items, totalCount, paginationAndSortOrder.page, paginationAndSortOrder.perPage)
+    return paginatedResponse(items, totalCount, query.page, query.perPage)
   }
 }

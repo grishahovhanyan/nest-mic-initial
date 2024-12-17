@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { ClientGrpc } from '@nestjs/microservices'
 import { firstValueFrom } from 'rxjs'
 
-import { Conversation } from '@app/database'
+import { Conversation, OrderObject } from '@app/database'
 import {
   UsersGrpcServiceClient,
   ParticipantsGrpcServiceClient,
@@ -83,7 +83,8 @@ export class ConversationsService implements OnModuleInit {
     }
 
     if (order) {
-      for (const [key, orderType] of Object.entries(order)) {
+      for (const [key, orderType] of Object.entries(order as OrderObject)) {
+        // TODO: fix
         qb.orderBy(`conversation.${key}`, orderType)
       }
     }

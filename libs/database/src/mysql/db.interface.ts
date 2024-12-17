@@ -1,16 +1,14 @@
 import { FindOptionsOrder, FindOptionsWhere } from 'typeorm'
 
-export interface IOrderObject {
-  [key: string]: 'ASC' | 'DESC'
-}
+export type OrderObject = Record<string, 'ASC' | 'DESC'>
 
-export interface IGetAndCountInput {
+export interface GetAndCountInput {
   page: number
   perPage: number
-  order: IOrderObject
+  order: OrderObject
 }
 
-export interface IFindAndCountInput<T> {
+export interface FindAndCountInput<T> {
   conditions: FindOptionsWhere<T>
   relations?: string[]
   take: number
@@ -18,11 +16,11 @@ export interface IFindAndCountInput<T> {
   order?: FindOptionsOrder<T>
 }
 
-export interface IFindAndCountOutput<T> {
+export interface FindAndCountOutput<T> {
   items: T[]
   totalCount: number
 }
 
-export interface IFindInput {
+export interface FindInput {
   relations?: string[]
 }

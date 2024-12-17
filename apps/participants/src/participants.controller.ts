@@ -7,9 +7,7 @@ import {
   BadRequestException,
   ForbiddenException,
   NotFoundException,
-  PageSizeTypes,
   SUCCESS_RESPONSE,
-  getPaginationAndSortOrder,
   paginatedResponse
 } from '@app/common'
 
@@ -33,16 +31,14 @@ export class ParticipantsController {
       throw new NotFoundException()
     }
 
-    const paginationAndSortOrder = getPaginationAndSortOrder(query, PageSizeTypes.participants)
-
     const { items, totalCount } = await this.participantsService.getAndCount({
       ...query,
-      ...paginationAndSortOrder,
+      order: typeof query.order === 'string' ? JSON.parse(query.order) : {}, // TODO: fix
       conversationId,
       userId: currentUserId
     })
 
-    return paginatedResponse(items, totalCount, paginationAndSortOrder.page, paginationAndSortOrder.perPage)
+    return paginatedResponse(items, totalCount, query.page, query.perPage)
   }
 
   @SwaggerParticipants.create()

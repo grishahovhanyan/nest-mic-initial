@@ -1,14 +1,11 @@
 import { applyDecorators } from '@nestjs/common'
 import { ApiProperty, type ApiPropertyOptions } from '@nestjs/swagger'
-import { Transform, Type } from 'class-transformer'
+import { Type } from 'class-transformer'
 import {
   ArrayMinSize,
   ArrayUnique,
   IsArray,
   IsBoolean,
-  IsDate,
-  IsDateString,
-  isDateString,
   IsDefined,
   IsEmail,
   IsEnum,
@@ -26,11 +23,10 @@ import {
   type ValidationOptions
 } from 'class-validator'
 
-import { ToBoolean } from './transform.decorator' // TODO: check this file
+import { ToBoolean } from './transform.decorator'
+import { Match } from './match.decorator'
 import { PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH, VALIDATION_MESSAGES } from '../constants'
-import { Match } from '../decorators/match.decorator'
 import {
-  IFieldOptions,
   INumberFieldOptions,
   INumberIdsFieldOptions,
   IStringFieldOptions,
@@ -163,14 +159,14 @@ export function PasswordField(
 export function BooleanField(options: Omit<ApiPropertyOptions, 'type'> & IBooleanFieldOptions = {}): PropertyDecorator {
   const decorators = [ToBoolean(), IsBoolean()]
 
+  if (options.swagger !== false) {
+    decorators.push(ApiProperty({ type: Boolean, ...options }))
+  }
+
   if (options.nullable) {
     decorators.push(IsNullable())
   } else {
     decorators.push(NotEquals(null))
-  }
-
-  if (options.swagger !== false) {
-    decorators.push(ApiProperty({ type: Boolean, ...options }))
   }
 
   return applyDecorators(...decorators)
@@ -185,14 +181,14 @@ export function BooleanFieldOptional(
 export function EmailField(options: Omit<ApiPropertyOptions, 'type'> & IStringFieldOptions = {}): PropertyDecorator {
   const decorators = [StringField({ ...options }), IsEmail()]
 
+  if (options.swagger !== false) {
+    decorators.push(ApiProperty({ type: String, example: 'example@gmail.com', ...options }))
+  }
+
   if (options.nullable) {
     decorators.push(IsNullable())
   } else {
     decorators.push(NotEquals(null))
-  }
-
-  if (options.swagger !== false) {
-    decorators.push(ApiProperty({ type: String, example: 'example@gmail.com', ...options }))
   }
 
   return applyDecorators(...decorators)
@@ -204,35 +200,28 @@ export function EmailFieldOptional(
   return applyDecorators(IsUndefinable(), EmailField({ required: false, nullable: true, ...options }))
 }
 
-// TODO: check this fields
-export function ApiEnumProperty<TEnum>(
-  getEnum: () => TEnum,
-  options: Omit<ApiPropertyOptions, 'type'> & { each?: boolean } = {}
-): PropertyDecorator {
-  const enumValue = getEnum() as Record<string, any>
-
-  return ApiProperty({
-    type: 'enum',
-    enum: enumValue,
-    ...options
-  })
-}
-
 export function EnumField<TEnum extends object>(
   getEnum: () => TEnum,
-  options: Omit<ApiPropertyOptions, 'type' | 'enum' | 'enumName' | 'isArray'> & IEnumFieldOptions = {}
+  options: Omit<ApiPropertyOptions, 'type' | 'enum' | 'enumName'> & IEnumFieldOptions = {}
 ): PropertyDecorator {
   const enumValue = getEnum()
-  const decorators = [IsEnum(enumValue, { each: options.each })]
+  const decorators = [IsEnum(enumValue, { each: options.isArray })]
+
+  if (options.swagger !== false) {
+    decorators.push(
+      ApiProperty({
+        type: 'enum',
+        enum: enumValue,
+        isArray: options.isArray,
+        ...options
+      })
+    )
+  }
 
   if (options.nullable) {
     decorators.push(IsNullable())
   } else {
     decorators.push(NotEquals(null))
-  }
-
-  if (options.swagger !== false) {
-    decorators.push(ApiEnumProperty(getEnum, { ...options, isArray: options.each }))
   }
 
   return applyDecorators(...decorators)
@@ -242,59 +231,5 @@ export function EnumFieldOptional<TEnum extends object>(
   getEnum: () => TEnum,
   options: Omit<ApiPropertyOptions, 'type' | 'required' | 'enum' | 'enumName'> & IEnumFieldOptions = {}
 ): PropertyDecorator {
-  return applyDecorators(IsUndefinable(), EnumField(getEnum, { required: false, ...options }))
-}
-
-export function DateField(options: Omit<ApiPropertyOptions, 'type'> & IFieldOptions = {}): PropertyDecorator {
-  const decorators = [
-    /**
-     * Note: using isDateString for more strict date validation
-     * and then transforming. Processing validation in transform decorator
-     * because we can't validate then transform using class-validator and class-transformer decorators.
-     */
-    Transform(({ value }) =>
-      isDateString(value, { strict: true, strictSeparator: true }) ? new Date(value as string) : undefined
-    ),
-    IsDate()
-  ]
-
-  if (options.nullable) {
-    decorators.push(IsNullable())
-  } else {
-    decorators.push(NotEquals(null))
-  }
-
-  if (options.swagger !== false) {
-    decorators.push(ApiProperty({ type: Date, ...options }))
-  }
-
-  return applyDecorators(...decorators)
-}
-
-export function DateFieldOptional(
-  options: Omit<ApiPropertyOptions, 'type' | 'required'> & IFieldOptions = {}
-): PropertyDecorator {
-  return applyDecorators(IsUndefinable(), DateField({ ...options, nullable: true, required: false }))
-}
-
-export function DateStringField(options: Omit<ApiPropertyOptions, 'type'> & IFieldOptions = {}): PropertyDecorator {
-  const decorators = [Type(() => String), IsDateString({ strict: true, strictSeparator: true })]
-
-  if (options.nullable) {
-    decorators.push(IsNullable())
-  } else {
-    decorators.push(NotEquals(null))
-  }
-
-  if (options.swagger !== false) {
-    decorators.push(ApiProperty({ type: Date, ...options }))
-  }
-
-  return applyDecorators(...decorators)
-}
-
-export function DateStringFieldOptional(
-  options: Omit<ApiPropertyOptions, 'type' | 'required'> & IFieldOptions = {}
-): PropertyDecorator {
-  return applyDecorators(IsUndefinable(), DateStringField({ ...options, nullable: true, required: false }))
+  return applyDecorators(IsUndefinable(), EnumField(getEnum, { nullable: true, required: false, ...options }))
 }

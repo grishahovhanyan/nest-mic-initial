@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { DataSource, DeepPartial, FindOptionsWhere, Repository } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 
-import { IFindAndCountInput, IFindAndCountOutput, IFindInput } from '@app/database'
+import { FindAndCountInput, FindAndCountOutput, FindInput } from '@app/database'
 
 @Injectable()
 export class BaseRepository<T> {
@@ -12,7 +12,7 @@ export class BaseRepository<T> {
     return this.dataSource.manager.getRepository(this.entity)
   }
 
-  async findAndCount(input: IFindAndCountInput<T>): Promise<IFindAndCountOutput<T>> {
+  async findAndCount(input: FindAndCountInput<T>): Promise<FindAndCountOutput<T>> {
     const { conditions, relations = [], take, skip, order } = input
 
     const [items, totalCount] = await this.getRepository().findAndCount({
@@ -37,14 +37,14 @@ export class BaseRepository<T> {
     return await this.getRepository().save(this.getRepository().create(bulkCreateInput))
   }
 
-  async findOne(conditions: FindOptionsWhere<T>, findInput?: IFindInput): Promise<T> {
+  async findOne(conditions: FindOptionsWhere<T>, findInput?: FindInput): Promise<T> {
     return await this.getRepository().findOne({
       where: conditions,
       relations: findInput?.relations || []
     })
   }
 
-  async find(conditions: FindOptionsWhere<T>, findInput?: IFindInput): Promise<T[]> {
+  async find(conditions: FindOptionsWhere<T>, findInput?: FindInput): Promise<T[]> {
     return await this.getRepository().find({
       where: conditions,
       relations: findInput?.relations || []

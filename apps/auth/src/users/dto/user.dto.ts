@@ -1,13 +1,7 @@
 import { IntersectionType } from '@nestjs/swagger'
-import { IOrderObject } from '@app/database'
-import { PaginationDto, SearchDto, getOrderingDescription, USERS_SORT_FIELDS } from '@app/common'
-import { StringFieldOptional } from '@app/common/validators'
+import { PaginationDto, SearchDto, OrderDto, PageTypes } from '@app/common'
 
-export class GetUsersDto extends IntersectionType(PaginationDto, SearchDto) {
-  @StringFieldOptional({ description: getOrderingDescription(USERS_SORT_FIELDS) }) // TODO: handle this // avoid using  getOrderingDescription
-  ordering?: string
-
-  order?: IOrderObject
+export class GetUsersDto extends IntersectionType(PaginationDto(PageTypes.users), SearchDto, OrderDto()) {
   userIdsToExclude?: number[]
   userIdsToInclude?: number[]
 }

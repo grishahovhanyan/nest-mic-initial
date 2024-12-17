@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { In, Like, Not } from 'typeorm'
 
-import { IFindAndCountInput, User } from '@app/database'
+import { FindAndCountInput, User } from '@app/database'
 import { GetUsersDto } from './dto/user.dto'
 import { SignupDto } from '../dto/auth.dto'
 
@@ -30,7 +30,7 @@ export class UsersService {
   async getAndCount(getUsersDto: GetUsersDto) {
     const { page, perPage, order, searchText, userIdsToExclude, userIdsToInclude } = getUsersDto
 
-    const findAndCountInput: IFindAndCountInput<User> = {
+    const findAndCountInput: FindAndCountInput<User> = {
       conditions: {
         ...(searchText?.trim() ? { fullName: Like(`%${searchText.trim()}%`) } : {}),
         ...(userIdsToExclude?.length ? { id: Not(In(userIdsToExclude)) } : {}),

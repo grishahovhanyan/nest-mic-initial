@@ -4,7 +4,7 @@ import { FindOptionsWhere, Like } from 'typeorm'
 import { firstValueFrom } from 'rxjs'
 
 import { NotFoundException } from '@app/common'
-import { IFindAndCountInput, Message, Participant } from '@app/database'
+import { FindAndCountInput, Message, OrderObject, Participant } from '@app/database'
 import {
   ConversationsGrpcServiceClient,
   CONVERSATIONS_PACKAGE,
@@ -71,12 +71,12 @@ export class MessagesService implements OnModuleInit {
       conditions.body = Like(`%${searchText.trim()}%`)
     }
 
-    const findAndCountInput: IFindAndCountInput<Message> = {
+    const findAndCountInput: FindAndCountInput<Message> = {
       conditions,
       relations: ['participant', 'participant.user'],
       take: perPage,
       skip: (page - 1) * perPage,
-      order
+      order: order as OrderObject // TODO: fix
     }
     return await this.messagesRepository.findAndCount(findAndCountInput)
   }

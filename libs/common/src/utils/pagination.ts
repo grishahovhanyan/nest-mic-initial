@@ -1,31 +1,34 @@
 import { getSortOrderFromQuery } from '@app/common'
-import { IOrderObject } from '@app/database'
+import { OrderObject } from '@app/database'
 import { envService } from './get-env'
 
-export enum PageSizeTypes {
+export enum PageTypes {
   users = 'users',
   conversations = 'conversations',
   participants = 'participants',
   messages = 'messages'
 }
 
+export const DEFAULT_PAGE_SIZE = 50
+const MAX_PAGE_SIZE = 200
+
 export const DEFAULT_PAGE_SIZES = {
-  usersPageSize: envService.getEnvNumber('USERS_PAGE_SIZE', 50),
-  conversationsPageSize: envService.getEnvNumber('CONVERSATIONS_PAGE_SIZE', 50),
-  participantsPageSize: envService.getEnvNumber('PARTICIPANTS_PAGE_SIZE', 50),
-  messagesPageSize: envService.getEnvNumber('MESSAGES_PAGE_SIZE', 50)
+  [PageTypes.users]: envService.getEnvNumber('USERS_PAGE_SIZE', DEFAULT_PAGE_SIZE),
+  [PageTypes.conversations]: envService.getEnvNumber('CONVERSATIONS_PAGE_SIZE', DEFAULT_PAGE_SIZE),
+  [PageTypes.participants]: envService.getEnvNumber('PARTICIPANTS_PAGE_SIZE', DEFAULT_PAGE_SIZE),
+  [PageTypes.messages]: envService.getEnvNumber('MESSAGES_PAGE_SIZE', DEFAULT_PAGE_SIZE)
 }
 
 export const MAX_PAGE_SIZES = {
-  usersMaxPageSize: envService.getEnvNumber('USERS_MAX_PAGE_SIZE', 200),
-  conversationsMaxPageSize: envService.getEnvNumber('CONVERSATIONS_MAX_PAGE_SIZE', 200),
-  participantsMaxPageSize: envService.getEnvNumber('PARTICIPANTS_MAX_PAGE_SIZE', 200),
-  messagesMaxPageSize: envService.getEnvNumber('MESSAGES_MAX_PAGE_SIZE', 200)
+  [PageTypes.users]: envService.getEnvNumber('USERS_MAX_PAGE_SIZE', MAX_PAGE_SIZE),
+  [PageTypes.conversations]: envService.getEnvNumber('CONVERSATIONS_MAX_PAGE_SIZE', MAX_PAGE_SIZE),
+  [PageTypes.participants]: envService.getEnvNumber('PARTICIPANTS_MAX_PAGE_SIZE', MAX_PAGE_SIZE),
+  [PageTypes.messages]: envService.getEnvNumber('MESSAGES_MAX_PAGE_SIZE', MAX_PAGE_SIZE)
 }
 
 export function getPerPage(type: string, querySize?: number) {
-  const maxSize = MAX_PAGE_SIZES[`${type}MaxPageSize`]
-  const defaultSize = DEFAULT_PAGE_SIZES[`${type}PageSize`]
+  const defaultSize = DEFAULT_PAGE_SIZES[type] ?? DEFAULT_PAGE_SIZE
+  const maxSize = MAX_PAGE_SIZES[type] ?? MAX_PAGE_SIZE
 
   return +querySize && +querySize <= maxSize ? +querySize : defaultSize
 }
@@ -43,13 +46,13 @@ export function getPagesForResponse(totalCount: number, page: number, perPage: n
 }
 
 export function getPaginationAndSortOrder(
-  query: { page?: number; perPage?: number; ordering?: string },
+  query: { page?: number; perPage?: number; order?: string },
   pageSizeType: string,
   allowedSortFields?: string[]
-): { page: number; perPage: number; order: IOrderObject } {
+): { page: number; perPage: number; order: OrderObject } {
   const page = +query.page || 1
   const perPage = getPerPage(pageSizeType, +query.perPage)
-  const order = getSortOrderFromQuery(query.ordering?.split(',') ?? [], allowedSortFields)
+  const order = getSortOrderFromQuery(query.order?.split(',') ?? [], allowedSortFields)
 
   return { page, perPage, order }
 }

@@ -1,5 +1,5 @@
 import { Get, Post, Query, Body, Param, Put, Delete } from '@nestjs/common'
-import { SwaggerParticipants } from '@app/swagger'
+import { Swagger } from '@app/swagger'
 
 import {
   EnhancedController,
@@ -18,7 +18,10 @@ import { ParticipantsService } from './participants.service'
 export class ParticipantsController {
   constructor(private readonly participantsService: ParticipantsService) {}
 
-  @SwaggerParticipants.index()
+  @Swagger({
+    pagination: true,
+    404: true
+  })
   @Get()
   async index(
     @RequestUser('id') currentUserId: number,
@@ -40,7 +43,11 @@ export class ParticipantsController {
     return paginatedResponse(items, totalCount, query.page, query.perPage)
   }
 
-  @SwaggerParticipants.create()
+  @Swagger({
+    400: true,
+    403: true,
+    404: true
+  })
   @Post()
   async create(
     @RequestUser('id') currentUserId: number,
@@ -76,7 +83,9 @@ export class ParticipantsController {
     return participant
   }
 
-  @SwaggerParticipants.find()
+  @Swagger({
+    404: true
+  })
   @Get(':id')
   async find(
     @RequestUser('id') currentUserId: number,
@@ -93,7 +102,11 @@ export class ParticipantsController {
     return participant
   }
 
-  @SwaggerParticipants.update()
+  @Swagger({
+    400: true,
+    403: true,
+    404: true
+  })
   @Put(':id')
   async update(
     @RequestUser('id') currentUserId: number,
@@ -121,7 +134,10 @@ export class ParticipantsController {
     return updatedParticipant
   }
 
-  @SwaggerParticipants.delete()
+  @Swagger({
+    403: true,
+    404: true
+  })
   @Delete(':id')
   async delete(
     @RequestUser('id') currentUserId: number,

@@ -1,10 +1,9 @@
+import { NestExpressApplication } from '@nestjs/platform-express'
 import { initializeTransactionalContext } from 'typeorm-transactional'
 import { NestFactory } from '@nestjs/core'
-import { ConfigService } from '@nestjs/config'
 import { Logger } from '@nestjs/common'
 
-import { ValidationPipe } from '@app/common'
-import { registerSwaggerModule } from '@app/swagger'
+import { appUtilsService, envService } from '@app/common'
 import { MessagesModule } from './messages.module'
 
 const logger = new Logger('MessagesMicroservice')
@@ -12,20 +11,13 @@ const logger = new Logger('MessagesMicroservice')
 async function bootstrap() {
   initializeTransactionalContext()
 
-  const app = await NestFactory.create(MessagesModule)
-  const configService = app.get(ConfigService)
+  const app = await NestFactory.create<NestExpressApplication>(MessagesModule)
 
-  // Register a global validation pipe to validate incoming requests
-  app.useGlobalPipes(new ValidationPipe())
-
-  // Set a global prefix for all routes in the API
-  app.setGlobalPrefix('api/v1')
-
-  // Setup Swagger
-  registerSwaggerModule(app, 'Messages', configService.get('NODE_ENV'))
+  // Setup application
+  appUtilsService.setupApp(app, { swaggerTitle: 'Messages' })
 
   // Start application
-  const port = configService.get('MESSAGES_PORT')
+  const port = envService.getEnvNumber('MESSAGES_PORT')
   await app.listen(port, () => logger.log(`🚀 Application is running: [Microservice: 'Messages', Port: ${port}]`))
 }
 bootstrap()

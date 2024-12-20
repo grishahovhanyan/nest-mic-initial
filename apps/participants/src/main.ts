@@ -1,12 +1,12 @@
 import { initializeTransactionalContext } from 'typeorm-transactional'
+import { NestExpressApplication } from '@nestjs/platform-express'
 import { NestFactory } from '@nestjs/core'
 import { ConfigService } from '@nestjs/config'
 import { Logger } from '@nestjs/common'
 import { join } from 'path'
 
-import { ValidationPipe } from '@app/common'
+import { appUtilsService, envService } from '@app/common'
 import { PARTICIPANTS_PACKAGE, getGrpcConnectionOptions } from '@app/microservices'
-import { registerSwaggerModule } from '@app/swagger'
 import { ParticipantsModule } from './participants.module'
 
 const logger = new Logger('ParticipantsMicroservice')
@@ -14,7 +14,7 @@ const logger = new Logger('ParticipantsMicroservice')
 async function bootstrap() {
   initializeTransactionalContext()
 
-  const app = await NestFactory.create(ParticipantsModule)
+  const app = await NestFactory.create<NestExpressApplication>(ParticipantsModule)
   const configService = app.get(ConfigService)
 
   // Connect `Participants` gRPC microservice
@@ -29,20 +29,14 @@ async function bootstrap() {
   )
   logger.log(`📦 Participants microservice successfully connected: [Transport: gRPC, Port: ${participantsGrpcPort}]`)
 
-  // Register a global validation pipe to validate incoming requests
-  app.useGlobalPipes(new ValidationPipe())
-
-  // Set a global prefix for all routes in the API
-  app.setGlobalPrefix('api/v1')
-
-  // Setup Swagger
-  registerSwaggerModule(app, 'Participants', configService.get('NODE_ENV'))
+  // Setup application
+  appUtilsService.setupApp(app, { swaggerTitle: 'Participants' })
 
   // Start all Microservices
   await app.startAllMicroservices()
 
   // Start application
-  const port = configService.get('PARTICIPANTS_PORT')
+  const port = envService.getEnvNumber('PARTICIPANTS_PORT')
   await app.listen(port, () => logger.log(`🚀 Application is running: [Microservice: 'Participants', Port: ${port}]`))
 }
 bootstrap()

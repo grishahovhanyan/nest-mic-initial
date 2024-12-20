@@ -1,5 +1,5 @@
 import { Get, Post, Query, Body, Param, Put, Delete, ForbiddenException } from '@nestjs/common'
-import { SwaggerConversations } from '@app/swagger'
+import { Swagger } from '@app/swagger'
 
 import { EnhancedController, RequestUser, NotFoundException, paginatedResponse, SUCCESS_RESPONSE } from '@app/common'
 import { CreateConversationDto, GetConversationsDto, UpdateConversationDto } from './dto/conversation.dto'
@@ -10,7 +10,9 @@ import { ConversationsService } from './conversations.service'
 export class ConversationsController {
   constructor(private readonly conversationsService: ConversationsService) {}
 
-  @SwaggerConversations.index()
+  @Swagger({
+    pagination: true
+  })
   @Get()
   async index(@RequestUser('id') currentUserId: number, @Query() query: GetConversationsDto) {
     const { items, totalCount } = await this.conversationsService.getAndCount({
@@ -21,7 +23,9 @@ export class ConversationsController {
     return paginatedResponse(items, totalCount, query.page, query.perPage)
   }
 
-  @SwaggerConversations.create()
+  @Swagger({
+    404: true
+  })
   @Post()
   async create(@RequestUser('id') currentUserId: number, @Body() createConversationDto: CreateConversationDto) {
     const uniqueUserIds = [...new Set([...createConversationDto.userIds, currentUserId])]
@@ -36,7 +40,9 @@ export class ConversationsController {
     return conversation
   }
 
-  @SwaggerConversations.find()
+  @Swagger({
+    404: true
+  })
   @Get(':id')
   async find(@RequestUser('id') currentUserId: number, @Param('id') conversationId: number) {
     const conversation = await this.conversationsService.getByConvIdAndUserId(conversationId, currentUserId)
@@ -48,7 +54,9 @@ export class ConversationsController {
     return conversation
   }
 
-  @SwaggerConversations.update()
+  @Swagger({
+    404: true
+  })
   @Put(':id')
   async update(
     @RequestUser('id') currentUserId: number,
@@ -66,7 +74,10 @@ export class ConversationsController {
     return updatedConversation
   }
 
-  @SwaggerConversations.delete()
+  @Swagger({
+    403: true,
+    404: true
+  })
   @Delete(':id')
   async delete(@RequestUser('id') currentUserId: number, @Param('id') conversationId: number) {
     const conversation = await this.conversationsService.getByConvIdAndUserId(conversationId, currentUserId)

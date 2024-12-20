@@ -1,4 +1,5 @@
-import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common'
+import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common'
+import { NotFoundException } from '@app/common'
 import { MessagesService } from '../messages.service'
 
 @Injectable()
@@ -11,7 +12,7 @@ export class ConversationAccessGuard implements CanActivate {
     const conversationId = request.params?.conversationId
 
     if (!conversationId || !currentUserId) {
-      throw new ForbiddenException('Missing required parameters')
+      throw new NotFoundException()
     }
 
     return this.messagesService.checkConversationAccess(conversationId, currentUserId)

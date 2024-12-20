@@ -1,5 +1,5 @@
 import { Get, Post, Query, Body, Param, Put, Delete, UseGuards } from '@nestjs/common'
-import { SwaggerMessages } from '@app/swagger'
+import { Swagger } from '@app/swagger'
 
 import {
   EnhancedController,
@@ -19,7 +19,9 @@ import { MessagesService } from './messages.service'
 export class MessagesController {
   constructor(private readonly messagesService: MessagesService) {}
 
-  @SwaggerMessages.index()
+  @Swagger({
+    404: true
+  })
   @Get()
   async index(@Param('conversationId') conversationId: number, @Query() query: GetMessagesDto) {
     const { items, totalCount } = await this.messagesService.getAndCount({
@@ -30,7 +32,10 @@ export class MessagesController {
     return paginatedResponse(items, totalCount, query.page, query.perPage)
   }
 
-  @SwaggerMessages.create()
+  @Swagger({
+    400: true,
+    404: true
+  })
   @Post()
   async create(
     @RequestUser('id') currentUserId: number,
@@ -52,7 +57,11 @@ export class MessagesController {
     return message
   }
 
-  @SwaggerMessages.find()
+  @Swagger({
+    400: true,
+    404: true
+  })
+  // TODO: add params to swagger in case like this
   @Get(':id')
   async find(@Param('conversationId') conversationId: number, @Param('id') messageId: number) {
     const message = await this.messagesService.getById(messageId)
@@ -64,7 +73,11 @@ export class MessagesController {
     return message
   }
 
-  @SwaggerMessages.update()
+  @Swagger({
+    400: true,
+    403: true,
+    404: true
+  })
   @Put(':id')
   async update(
     @RequestUser('id') currentUserId: number,
@@ -91,7 +104,10 @@ export class MessagesController {
     return updatedMessage
   }
 
-  @SwaggerMessages.delete()
+  @Swagger({
+    403: true,
+    404: true
+  })
   @Delete(':id')
   async delete(
     @RequestUser('id') currentUserId: number,
